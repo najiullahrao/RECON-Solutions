@@ -1,5 +1,6 @@
 import express from 'express';
 import { supabase } from '../config/supabase.js';
+import { ROLES } from '../constants/index.js';
 
 const router = express.Router();
 
@@ -15,7 +16,8 @@ router.post('/register', async (req, res) => {
 
   await supabase.from('profiles').insert({
     id: data.user.id,
-    full_name
+    full_name,
+    role: ROLES.USER
   });
 
   res.json({ message: 'Registered successfully' });
