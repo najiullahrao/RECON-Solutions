@@ -1,27 +1,13 @@
-# Dependencies
-node_modules/
+node_modules
+.next
+build
+.idea
 
-# Environment and secrets (never commit)
+# Environment variables
+.env*.local
 .env
-.env.local
-.env.*.local
-
-# Logs and runtime
-logs/
-*.log
-npm-debug.log*
-
-# OS
+.env.prod
 .DS_Store
-Thumbs.db
+public/.DS_Store
 
-# Build / output
-dist/
-build/
-*.tsbuildinfo
-
-# IDE
-.idea/
-.vscode/
-*.swp
-*.swo
+.quickbooks-tokens.json
