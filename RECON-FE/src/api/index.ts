@@ -1,0 +1,10 @@
+export { api } from './client';
+export { authApi } from './auth';
+export { servicesApi } from './services';
+export { projectsApi } from './projects';
+export { consultationsApi } from './consultations';
+export { appointmentsApi } from './appointments';
+export { aiApi } from './ai';
+export { analyticsApi } from './analytics';
+export { uploadApi } from './upload';
+export { healthApi } from './health';
