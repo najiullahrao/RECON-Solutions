@@ -6,7 +6,6 @@ import { sanitizeForSearch } from '../utils/sanitize.js';
 
 const router = express.Router();
 
-// Get all services with search and filters
 router.get('/', async (req, res) => {
   const { search, category, active } = req.query;
 
@@ -20,7 +19,7 @@ router.get('/', async (req, res) => {
     if (safe) query = query.or(`name.ilike.%${safe}%,description.ilike.%${safe}%`);
   }
 
-  if (category) {
+  if (category && typeof category === 'string') {
     query = query.eq('category', category);
   }
 
@@ -32,12 +31,12 @@ router.get('/', async (req, res) => {
 
   if (error) {
     console.error('Services list error:', error);
-    return res.status(500).json({ error: 'Something went wrong' });
+    res.status(500).json({ error: 'Something went wrong' });
+    return;
   }
   res.json(data);
 });
 
-// Public: Get single service
 router.get('/:id', async (req, res) => {
   const { data, error } = await supabase
     .from('services')
@@ -45,15 +44,20 @@ router.get('/:id', async (req, res) => {
     .eq('id', req.params.id)
     .single();
 
-  if (error) return res.status(404).json({ error: 'Service not found' });
+  if (error) {
+    res.status(404).json({ error: 'Service not found' });
+    return;
+  }
   res.json(data);
 });
 
-// Admin only: Create service
 router.post('/', requireAuth, requireRole(['ADMIN']), async (req, res) => {
   const { name, category, description } = req.body;
 
-  if (!name) return res.status(400).json({ error: 'Name is required' });
+  if (!name) {
+    res.status(400).json({ error: 'Name is required' });
+    return;
+  }
 
   const { data, error } = await supabase
     .from('services')
@@ -63,12 +67,12 @@ router.post('/', requireAuth, requireRole(['ADMIN']), async (req, res) => {
 
   if (error) {
     console.error('Service create error:', error);
-    return res.status(500).json({ error: 'Something went wrong' });
+    res.status(500).json({ error: 'Something went wrong' });
+    return;
   }
   res.status(201).json(data);
 });
 
-// Admin only: Update service
 router.put('/:id', requireAuth, requireRole(['ADMIN']), async (req, res) => {
   const { name, category, description, active } = req.body;
 
@@ -81,12 +85,12 @@ router.put('/:id', requireAuth, requireRole(['ADMIN']), async (req, res) => {
 
   if (error) {
     console.error('Service update error:', error);
-    return res.status(500).json({ error: 'Something went wrong' });
+    res.status(500).json({ error: 'Something went wrong' });
+    return;
   }
   res.json(data);
 });
 
-// Admin only: Delete service (soft delete)
 router.delete('/:id', requireAuth, requireRole(['ADMIN']), async (req, res) => {
   const { data, error } = await supabase
     .from('services')
@@ -97,7 +101,8 @@ router.delete('/:id', requireAuth, requireRole(['ADMIN']), async (req, res) => {
 
   if (error) {
     console.error('Service deactivate error:', error);
-    return res.status(500).json({ error: 'Something went wrong' });
+    res.status(500).json({ error: 'Something went wrong' });
+    return;
   }
   res.json({ message: 'Service deactivated', data });
 });

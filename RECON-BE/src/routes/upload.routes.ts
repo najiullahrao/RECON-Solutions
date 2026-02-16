@@ -4,10 +4,8 @@ import { upload } from '../middleware/upload.middleware.js';
 import { requireAuth } from '../middleware/auth.middleware.js';
 import { requireRole } from '../middleware/role.middleware.js';
 
-
 const router = express.Router();
 
-// Upload single image (Admin/Staff only)
 router.post(
   '/image',
   requireAuth,
@@ -15,12 +13,13 @@ router.post(
   upload.single('image'),
   async (req, res) => {
     try {
-      if (!req.file) {
-        return res.status(400).json({ error: 'No image file provided' });
+      const file = req.file;
+      if (!file) {
+        res.status(400).json({ error: 'No image file provided' });
+        return;
       }
 
-      // Upload to Cloudinary
-      const result = await new Promise((resolve, reject) => {
+      const result = await new Promise<{ secure_url: string; public_id: string }>((resolve, reject) => {
         const uploadStream = cloudinary.uploader.upload_stream(
           {
             folder: 'construction-projects',
@@ -31,10 +30,11 @@ router.post(
           },
           (error, result) => {
             if (error) reject(error);
-            else resolve(result);
+            else if (result) resolve({ secure_url: result.secure_url, public_id: result.public_id });
+            else reject(new Error('No result'));
           }
         );
-        uploadStream.end(req.file.buffer);
+        uploadStream.end(file.buffer);
       });
 
       res.json({
@@ -42,7 +42,6 @@ router.post(
         url: result.secure_url,
         public_id: result.public_id
       });
-
     } catch (error) {
       console.error('Upload error:', error);
       res.status(500).json({ error: 'Failed to upload image' });
@@ -50,21 +49,21 @@ router.post(
   }
 );
 
-// Upload multiple images
 router.post(
   '/images',
   requireAuth,
   requireRole(['ADMIN', 'STAFF']),
-  upload.array('images', 10), // Max 10 images
+  upload.array('images', 10),
   async (req, res) => {
     try {
       if (!req.files || req.files.length === 0) {
-        return res.status(400).json({ error: 'No images provided' });
+        res.status(400).json({ error: 'No images provided' });
+        return;
       }
 
-      const uploadPromises = req.files.map(file => {
-        return new Promise((resolve, reject) => {
-          const uploadStream = cloudinary.uploader.upload_stream(
+      const uploadPromises = (req.files as Express.Multer.File[]).map((file) => {
+        return new Promise<{ url: string; public_id: string }>((resolve, reject) => {
+          cloudinary.uploader.upload_stream(
             {
               folder: 'construction-projects',
               transformation: [
@@ -74,13 +73,10 @@ router.post(
             },
             (error, result) => {
               if (error) reject(error);
-              else resolve({
-                url: result.secure_url,
-                public_id: result.public_id
-              });
+              else if (result) resolve({ url: result.secure_url, public_id: result.public_id });
+              else reject(new Error('No result'));
             }
-          );
-          uploadStream.end(file.buffer);
+          ).end(file.buffer);
         });
       });
 
@@ -90,7 +86,6 @@ router.post(
         message: 'Images uploaded successfully',
         images: results
       });
-
     } catch (error) {
       console.error('Upload error:', error);
       res.status(500).json({ error: 'Failed to upload images' });
@@ -98,16 +93,14 @@ router.post(
   }
 );
 
-// Delete image
 router.delete(
   '/image/:public_id',
   requireAuth,
   requireRole(['ADMIN', 'STAFF']),
   async (req, res) => {
     try {
-      const publicId = req.params.public_id.replace(/~/g, '/');
+      const publicId = String(req.params.public_id).replace(/~/g, '/');
       await cloudinary.uploader.destroy(publicId);
-
       res.json({ message: 'Image deleted successfully' });
     } catch (error) {
       console.error('Delete error:', error);

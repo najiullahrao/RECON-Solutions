@@ -10,8 +10,8 @@ if (missing.length > 0) {
 export const config = {
   port: Number(process.env.PORT) || 5000,
   supabase: {
-    url: process.env.SUPABASE_URL,
-    serviceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY
+    url: process.env.SUPABASE_URL as string,
+    serviceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY as string
   },
   cloudinary: {
     cloudName: process.env.CLOUDINARY_CLOUD_NAME,
@@ -20,4 +20,4 @@ export const config = {
   },
   groqApiKey: process.env.GROQ_API_KEY,
   frontendUrl: process.env.FRONTEND_URL || null
-};
+} as const;

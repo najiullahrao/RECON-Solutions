@@ -3,7 +3,9 @@ export const ROLES = {
   ADMIN: 'ADMIN',
   STAFF: 'STAFF',
   USER: 'USER'
-};
+} as const;
+
+export type Role = (typeof ROLES)[keyof typeof ROLES];
 
 export const ROLE_VALUES = Object.values(ROLES);
 
@@ -14,7 +16,7 @@ export const CONSULTATION_STATUSES = [
   'IN_PROGRESS',
   'COMPLETED',
   'CANCELLED'
-];
+] as const;
 
 /** Appointment statuses */
 export const APPOINTMENT_STATUSES = [
@@ -22,4 +24,4 @@ export const APPOINTMENT_STATUSES = [
   'CONFIRMED',
   'COMPLETED',
   'CANCELLED'
-];
+] as const;

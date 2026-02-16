@@ -6,7 +6,6 @@ import { sanitizeForSearch } from '../utils/sanitize.js';
 
 const router = express.Router();
 
-// Get all projects with search and filters
 router.get('/', async (req, res) => {
   const { search, stage, location, service_id } = req.query;
 
@@ -20,7 +19,7 @@ router.get('/', async (req, res) => {
     if (safe) query = query.or(`title.ilike.%${safe}%,description.ilike.%${safe}%`);
   }
 
-  if (stage) {
+  if (stage && typeof stage === 'string') {
     query = query.eq('stage', stage);
   }
 
@@ -29,7 +28,7 @@ router.get('/', async (req, res) => {
     if (safe) query = query.ilike('location', `%${safe}%`);
   }
 
-  if (service_id) {
+  if (service_id && typeof service_id === 'string') {
     query = query.eq('service_id', service_id);
   }
 
@@ -37,12 +36,12 @@ router.get('/', async (req, res) => {
 
   if (error) {
     console.error('Projects list error:', error);
-    return res.status(500).json({ error: 'Something went wrong' });
+    res.status(500).json({ error: 'Something went wrong' });
+    return;
   }
   res.json(data);
 });
 
-// Public: Get single project
 router.get('/:id', async (req, res) => {
   const { data, error } = await supabase
     .from('projects')
@@ -50,15 +49,20 @@ router.get('/:id', async (req, res) => {
     .eq('id', req.params.id)
     .single();
 
-  if (error) return res.status(404).json({ error: 'Project not found' });
+  if (error) {
+    res.status(404).json({ error: 'Project not found' });
+    return;
+  }
   res.json(data);
 });
 
-// Create project with images
 router.post('/', requireAuth, requireRole(['ADMIN', 'STAFF']), async (req, res) => {
   const { title, service_id, location, stage, description, images } = req.body;
 
-  if (!title) return res.status(400).json({ error: 'Title is required' });
+  if (!title) {
+    res.status(400).json({ error: 'Title is required' });
+    return;
+  }
 
   const { data, error } = await supabase
     .from('projects')
@@ -75,16 +79,16 @@ router.post('/', requireAuth, requireRole(['ADMIN', 'STAFF']), async (req, res) 
 
   if (error) {
     console.error('Project create error:', error);
-    return res.status(500).json({ error: 'Something went wrong' });
+    res.status(500).json({ error: 'Something went wrong' });
+    return;
   }
   res.status(201).json(data);
 });
 
-// Update project (partial update; only provided fields are updated)
 router.put('/:id', requireAuth, requireRole(['ADMIN', 'STAFF']), async (req, res) => {
   const { title, service_id, location, stage, description, images } = req.body;
 
-  const payload = {};
+  const payload: Record<string, unknown> = {};
   if (title !== undefined) payload.title = title;
   if (service_id !== undefined) payload.service_id = service_id;
   if (location !== undefined) payload.location = location;
@@ -93,7 +97,8 @@ router.put('/:id', requireAuth, requireRole(['ADMIN', 'STAFF']), async (req, res
   if (images !== undefined) payload.images = Array.isArray(images) ? images : [];
 
   if (Object.keys(payload).length === 0) {
-    return res.status(400).json({ error: 'No fields to update' });
+    res.status(400).json({ error: 'No fields to update' });
+    return;
   }
 
   const { data, error } = await supabase
@@ -105,21 +110,19 @@ router.put('/:id', requireAuth, requireRole(['ADMIN', 'STAFF']), async (req, res
 
   if (error) {
     console.error('Project update error:', error);
-    return res.status(500).json({ error: 'Something went wrong' });
+    res.status(500).json({ error: 'Something went wrong' });
+    return;
   }
   res.json(data);
 });
 
-// Admin only: Delete project
 router.delete('/:id', requireAuth, requireRole(['ADMIN']), async (req, res) => {
-  const { error } = await supabase
-    .from('projects')
-    .delete()
-    .eq('id', req.params.id);
+  const { error } = await supabase.from('projects').delete().eq('id', req.params.id);
 
   if (error) {
     console.error('Project delete error:', error);
-    return res.status(500).json({ error: 'Something went wrong' });
+    res.status(500).json({ error: 'Something went wrong' });
+    return;
   }
   res.json({ message: 'Project deleted' });
 });

@@ -7,12 +7,12 @@ import { CONSULTATION_STATUSES } from '../constants/index.js';
 
 const router = express.Router();
 
-// Public: Submit consultation request
 router.post('/', async (req, res) => {
   const { name, email, phone, service, location, message } = req.body;
 
   if (!name || !email || !phone) {
-    return res.status(400).json({ error: 'Name, email, and phone are required' });
+    res.status(400).json({ error: 'Name, email, and phone are required' });
+    return;
   }
 
   const { data, error } = await supabase
@@ -23,12 +23,12 @@ router.post('/', async (req, res) => {
 
   if (error) {
     console.error('Consultation submit error:', error);
-    return res.status(500).json({ error: 'Something went wrong' });
+    res.status(500).json({ error: 'Something went wrong' });
+    return;
   }
   res.status(201).json({ message: 'Consultation request submitted', data });
 });
 
-// Admin/Staff: Get all consultations with filters
 router.get('/', requireAuth, requireRole(['ADMIN', 'STAFF']), async (req, res) => {
   const { status, search, from_date, to_date } = req.query;
 
@@ -37,7 +37,7 @@ router.get('/', requireAuth, requireRole(['ADMIN', 'STAFF']), async (req, res) =
     .select('*')
     .order('created_at', { ascending: false });
 
-  if (status) {
+  if (status && typeof status === 'string') {
     query = query.eq('status', status);
   }
 
@@ -46,11 +46,11 @@ router.get('/', requireAuth, requireRole(['ADMIN', 'STAFF']), async (req, res) =
     if (safe) query = query.or(`name.ilike.%${safe}%,email.ilike.%${safe}%,phone.ilike.%${safe}%`);
   }
 
-  if (from_date) {
+  if (from_date && typeof from_date === 'string') {
     query = query.gte('created_at', from_date);
   }
 
-  if (to_date) {
+  if (to_date && typeof to_date === 'string') {
     query = query.lte('created_at', to_date);
   }
 
@@ -58,17 +58,18 @@ router.get('/', requireAuth, requireRole(['ADMIN', 'STAFF']), async (req, res) =
 
   if (error) {
     console.error('Consultations list error:', error);
-    return res.status(500).json({ error: 'Something went wrong' });
+    res.status(500).json({ error: 'Something went wrong' });
+    return;
   }
   res.json(data);
 });
 
-// Admin/Staff: Update consultation status
 router.patch('/:id', requireAuth, requireRole(['ADMIN', 'STAFF']), async (req, res) => {
-  const { status } = req.body;
+  const { status } = req.body as { status?: string };
 
-  if (!CONSULTATION_STATUSES.includes(status)) {
-    return res.status(400).json({ error: 'Invalid status' });
+  if (!status || !(CONSULTATION_STATUSES as readonly string[]).includes(status)) {
+    res.status(400).json({ error: 'Invalid status' });
+    return;
   }
 
   const { data, error } = await supabase
@@ -80,13 +81,18 @@ router.patch('/:id', requireAuth, requireRole(['ADMIN', 'STAFF']), async (req, r
 
   if (error) {
     console.error('Consultation update error:', error);
-    return res.status(500).json({ error: 'Something went wrong' });
+    res.status(500).json({ error: 'Something went wrong' });
+    return;
   }
   res.json(data);
 });
 
-// User: Get own consultations (if logged in)
 router.get('/my', requireAuth, async (req, res) => {
+  if (!req.user) {
+    res.status(403).json({ error: 'Forbidden' });
+    return;
+  }
+
   const { data, error } = await supabase
     .from('consultations')
     .select('*')
@@ -95,7 +101,8 @@ router.get('/my', requireAuth, async (req, res) => {
 
   if (error) {
     console.error('Consultations my list error:', error);
-    return res.status(500).json({ error: 'Something went wrong' });
+    res.status(500).json({ error: 'Something went wrong' });
+    return;
   }
   res.json(data);
 });

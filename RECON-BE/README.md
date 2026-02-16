@@ -1,6 +1,6 @@
 # RECON Backend
 
-Express API for the RECON construction/consulting platform. Handles auth (Supabase), projects, services, consultations, appointments, image uploads (Cloudinary), AI (Groq), and analytics.
+Express API (TypeScript) for the RECON construction/consulting platform. Handles auth (Supabase), projects, services, consultations, appointments, image uploads (Cloudinary), AI (Groq), and analytics.
 
 ## Setup
 
@@ -15,8 +15,9 @@ Express API for the RECON construction/consulting platform. Handles auth (Supaba
 
 3. **Run**
    ```bash
-   npm run dev   # development (watch mode)
-   npm start    # production
+   npm run dev   # development (TypeScript watch)
+   npm run build # compile to dist/
+   npm start     # production (runs dist/server.js)
    ```
 
 Server runs on `http://localhost:5000` (or `PORT` from `.env`). Health check: `GET /health`.
@@ -53,4 +54,6 @@ Roles: **USER** (default), **STAFF**, **ADMIN**. Auth via `Authorization: Bearer
 - `src/constants` – roles, status enums
 - `src/middleware` – auth, role, upload
 - `src/routes` – API route handlers
+- `src/types` – Express augmentation (e.g. `req.user`)
 - `src/utils` – helpers (e.g. sanitize)
+- `dist/` – compiled output (after `npm run build`)

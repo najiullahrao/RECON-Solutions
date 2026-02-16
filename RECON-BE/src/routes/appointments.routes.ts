@@ -6,34 +6,44 @@ import { APPOINTMENT_STATUSES } from '../constants/index.js';
 
 const router = express.Router();
 
-// User: Create appointment (requires login)
 router.post('/', requireAuth, async (req, res) => {
   const { service, preferred_date, location } = req.body;
 
   if (!service || !preferred_date) {
-    return res.status(400).json({ error: 'Service and preferred date are required' });
+    res.status(400).json({ error: 'Service and preferred date are required' });
+    return;
+  }
+
+  if (!req.user) {
+    res.status(403).json({ error: 'Forbidden' });
+    return;
   }
 
   const { data, error } = await supabase
     .from('appointments')
-    .insert({ 
-      user_id: req.user.id, 
-      service, 
-      preferred_date, 
-      location 
+    .insert({
+      user_id: req.user.id,
+      service,
+      preferred_date,
+      location
     })
     .select()
     .single();
 
   if (error) {
     console.error('Appointment create error:', error);
-    return res.status(500).json({ error: 'Something went wrong' });
+    res.status(500).json({ error: 'Something went wrong' });
+    return;
   }
   res.status(201).json({ message: 'Appointment requested', data });
 });
 
-// User: Get own appointments
 router.get('/my', requireAuth, async (req, res) => {
+  if (!req.user) {
+    res.status(403).json({ error: 'Forbidden' });
+    return;
+  }
+
   const { data, error } = await supabase
     .from('appointments')
     .select('*')
@@ -42,12 +52,12 @@ router.get('/my', requireAuth, async (req, res) => {
 
   if (error) {
     console.error('Appointments my list error:', error);
-    return res.status(500).json({ error: 'Something went wrong' });
+    res.status(500).json({ error: 'Something went wrong' });
+    return;
   }
   res.json(data);
 });
 
-// Admin/Staff: Get all appointments
 router.get('/', requireAuth, requireRole(['ADMIN', 'STAFF']), async (req, res) => {
   const { status } = req.query;
 
@@ -56,23 +66,26 @@ router.get('/', requireAuth, requireRole(['ADMIN', 'STAFF']), async (req, res) =
     .select('*, profiles(full_name)')
     .order('preferred_date', { ascending: true });
 
-  if (status) query = query.eq('status', status);
+  if (status && typeof status === 'string') {
+    query = query.eq('status', status);
+  }
 
   const { data, error } = await query;
 
   if (error) {
     console.error('Appointments list error:', error);
-    return res.status(500).json({ error: 'Something went wrong' });
+    res.status(500).json({ error: 'Something went wrong' });
+    return;
   }
   res.json(data);
 });
 
-// Admin/Staff: Update appointment status
 router.patch('/:id', requireAuth, requireRole(['ADMIN', 'STAFF']), async (req, res) => {
-  const { status } = req.body;
+  const { status } = req.body as { status?: string };
 
-  if (!APPOINTMENT_STATUSES.includes(status)) {
-    return res.status(400).json({ error: 'Invalid status' });
+  if (!status || !(APPOINTMENT_STATUSES as readonly string[]).includes(status)) {
+    res.status(400).json({ error: 'Invalid status' });
+    return;
   }
 
   const { data, error } = await supabase
@@ -84,7 +97,8 @@ router.patch('/:id', requireAuth, requireRole(['ADMIN', 'STAFF']), async (req, r
 
   if (error) {
     console.error('Appointment update error:', error);
-    return res.status(500).json({ error: 'Something went wrong' });
+    res.status(500).json({ error: 'Something went wrong' });
+    return;
   }
   res.json(data);
 });
