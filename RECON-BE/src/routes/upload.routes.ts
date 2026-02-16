@@ -1,8 +1,11 @@
 import express from 'express';
-import cloudinary from '../config/cloudinary.js';
 import { upload } from '../middleware/upload.middleware.js';
 import { requireAuth } from '../middleware/auth.middleware.js';
 import { requireRole } from '../middleware/role.middleware.js';
+import { validateParams } from '../middleware/validation.middleware.js';
+import { deleteImageParams } from '../validations/upload.validations.js';
+import * as response from '../utils/response.js';
+import * as uploadService from '../services/upload.service.js';
 
 const router = express.Router();
 
@@ -12,39 +15,16 @@ router.post(
   requireRole(['ADMIN', 'STAFF']),
   upload.single('image'),
   async (req, res) => {
+    const file = req.file;
+    if (!file) {
+      response.error(res, 'No image file provided', 400);
+      return;
+    }
     try {
-      const file = req.file;
-      if (!file) {
-        res.status(400).json({ error: 'No image file provided' });
-        return;
-      }
-
-      const result = await new Promise<{ secure_url: string; public_id: string }>((resolve, reject) => {
-        const uploadStream = cloudinary.uploader.upload_stream(
-          {
-            folder: 'construction-projects',
-            transformation: [
-              { width: 1200, height: 800, crop: 'limit' },
-              { quality: 'auto' }
-            ]
-          },
-          (error, result) => {
-            if (error) reject(error);
-            else if (result) resolve({ secure_url: result.secure_url, public_id: result.public_id });
-            else reject(new Error('No result'));
-          }
-        );
-        uploadStream.end(file.buffer);
-      });
-
-      res.json({
-        message: 'Image uploaded successfully',
-        url: result.secure_url,
-        public_id: result.public_id
-      });
-    } catch (error) {
-      console.error('Upload error:', error);
-      res.status(500).json({ error: 'Failed to upload image' });
+      const result = await uploadService.uploadSingleImage(file.buffer);
+      response.success(res, { message: 'Image uploaded successfully', url: result.url, public_id: result.public_id });
+    } catch (err) {
+      response.error(res, 'Failed to upload image', 500);
     }
   }
 );
@@ -55,40 +35,16 @@ router.post(
   requireRole(['ADMIN', 'STAFF']),
   upload.array('images', 10),
   async (req, res) => {
+    if (!req.files || req.files.length === 0) {
+      response.error(res, 'No images provided', 400);
+      return;
+    }
     try {
-      if (!req.files || req.files.length === 0) {
-        res.status(400).json({ error: 'No images provided' });
-        return;
-      }
-
-      const uploadPromises = (req.files as Express.Multer.File[]).map((file) => {
-        return new Promise<{ url: string; public_id: string }>((resolve, reject) => {
-          cloudinary.uploader.upload_stream(
-            {
-              folder: 'construction-projects',
-              transformation: [
-                { width: 1200, height: 800, crop: 'limit' },
-                { quality: 'auto' }
-              ]
-            },
-            (error, result) => {
-              if (error) reject(error);
-              else if (result) resolve({ url: result.secure_url, public_id: result.public_id });
-              else reject(new Error('No result'));
-            }
-          ).end(file.buffer);
-        });
-      });
-
-      const results = await Promise.all(uploadPromises);
-
-      res.json({
-        message: 'Images uploaded successfully',
-        images: results
-      });
-    } catch (error) {
-      console.error('Upload error:', error);
-      res.status(500).json({ error: 'Failed to upload images' });
+      const buffers = (req.files as Express.Multer.File[]).map((f) => f.buffer);
+      const images = await uploadService.uploadMultipleImages(buffers);
+      response.success(res, { message: 'Images uploaded successfully', images });
+    } catch (err) {
+      response.error(res, 'Failed to upload images', 500);
     }
   }
 );
@@ -97,14 +53,13 @@ router.delete(
   '/image/:public_id',
   requireAuth,
   requireRole(['ADMIN', 'STAFF']),
+  validateParams(deleteImageParams),
   async (req, res) => {
     try {
-      const publicId = String(req.params.public_id).replace(/~/g, '/');
-      await cloudinary.uploader.destroy(publicId);
-      res.json({ message: 'Image deleted successfully' });
-    } catch (error) {
-      console.error('Delete error:', error);
-      res.status(500).json({ error: 'Failed to delete image' });
+      await uploadService.deleteImage(String(req.params.public_id));
+      response.success(res, { message: 'Image deleted successfully' });
+    } catch (err) {
+      response.error(res, 'Failed to delete image', 500);
     }
   }
 );

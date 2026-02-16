@@ -1,93 +1,52 @@
 import express from 'express';
-import { supabase } from '../config/supabase.js';
 import { requireAuth } from '../middleware/auth.middleware.js';
 import { requireRole } from '../middleware/role.middleware.js';
 import { sanitizeForSearch } from '../utils/sanitize.js';
+import { validateBody, validateParams } from '../middleware/validation.middleware.js';
+import { createProjectBody, updateProjectBody, projectIdParam } from '../validations/project.validations.js';
+import * as response from '../utils/response.js';
+import * as projectService from '../services/project.service.js';
 
 const router = express.Router();
 
 router.get('/', async (req, res) => {
-  const { search, stage, location, service_id } = req.query;
-
-  let query = supabase
-    .from('projects')
-    .select('*, services(name)')
-    .order('created_at', { ascending: false });
-
-  if (search) {
-    const safe = sanitizeForSearch(search);
-    if (safe) query = query.or(`title.ilike.%${safe}%,description.ilike.%${safe}%`);
+  try {
+    const q = req.query;
+    const search = typeof q.search === 'string' ? sanitizeForSearch(q.search) : undefined;
+    const stage = typeof q.stage === 'string' ? q.stage : undefined;
+    const location = typeof q.location === 'string' ? sanitizeForSearch(q.location) || undefined : undefined;
+    const service_id = typeof q.service_id === 'string' ? q.service_id : undefined;
+    const data = await projectService.listProjects({ search, stage, location, service_id });
+    response.success(res, data);
+  } catch (err) {
+    response.error(res, 'Something went wrong', 500);
   }
-
-  if (stage && typeof stage === 'string') {
-    query = query.eq('stage', stage);
-  }
-
-  if (location) {
-    const safe = sanitizeForSearch(location);
-    if (safe) query = query.ilike('location', `%${safe}%`);
-  }
-
-  if (service_id && typeof service_id === 'string') {
-    query = query.eq('service_id', service_id);
-  }
-
-  const { data, error } = await query;
-
-  if (error) {
-    console.error('Projects list error:', error);
-    res.status(500).json({ error: 'Something went wrong' });
-    return;
-  }
-  res.json(data);
 });
 
-router.get('/:id', async (req, res) => {
-  const { data, error } = await supabase
-    .from('projects')
-    .select('*, services(name)')
-    .eq('id', req.params.id)
-    .single();
-
-  if (error) {
-    res.status(404).json({ error: 'Project not found' });
-    return;
+router.get('/:id', validateParams(projectIdParam), async (req, res) => {
+  try {
+    const id = String(req.params.id);
+    const data = await projectService.getProjectById(id);
+    response.success(res, data);
+  } catch (err: unknown) {
+    const code = err && typeof err === 'object' && 'code' in err ? (err as { code: string }).code : undefined;
+    if (code === 'PGRST116') return response.error(res, 'Project not found', 404, 'NOT_FOUND');
+    response.error(res, 'Something went wrong', 500);
   }
-  res.json(data);
 });
 
-router.post('/', requireAuth, requireRole(['ADMIN', 'STAFF']), async (req, res) => {
+router.post('/', requireAuth, requireRole(['ADMIN', 'STAFF']), validateBody(createProjectBody), async (req, res) => {
+  try {
+    const body = req.body as { images?: string[] };
+    const data = await projectService.createProject({ ...req.body, images: body.images });
+    response.success(res, data, 201);
+  } catch (err) {
+    response.error(res, 'Something went wrong', 500);
+  }
+});
+
+router.put('/:id', requireAuth, requireRole(['ADMIN', 'STAFF']), validateParams(projectIdParam), validateBody(updateProjectBody), async (req, res) => {
   const { title, service_id, location, stage, description, images } = req.body;
-
-  if (!title) {
-    res.status(400).json({ error: 'Title is required' });
-    return;
-  }
-
-  const { data, error } = await supabase
-    .from('projects')
-    .insert({
-      title,
-      service_id,
-      location,
-      stage,
-      description,
-      images: Array.isArray(images) ? images : []
-    })
-    .select()
-    .single();
-
-  if (error) {
-    console.error('Project create error:', error);
-    res.status(500).json({ error: 'Something went wrong' });
-    return;
-  }
-  res.status(201).json(data);
-});
-
-router.put('/:id', requireAuth, requireRole(['ADMIN', 'STAFF']), async (req, res) => {
-  const { title, service_id, location, stage, description, images } = req.body;
-
   const payload: Record<string, unknown> = {};
   if (title !== undefined) payload.title = title;
   if (service_id !== undefined) payload.service_id = service_id;
@@ -95,36 +54,26 @@ router.put('/:id', requireAuth, requireRole(['ADMIN', 'STAFF']), async (req, res
   if (stage !== undefined) payload.stage = stage;
   if (description !== undefined) payload.description = description;
   if (images !== undefined) payload.images = Array.isArray(images) ? images : [];
-
   if (Object.keys(payload).length === 0) {
-    res.status(400).json({ error: 'No fields to update' });
+    response.error(res, 'No fields to update', 400, 'VALIDATION_ERROR');
     return;
   }
-
-  const { data, error } = await supabase
-    .from('projects')
-    .update(payload)
-    .eq('id', req.params.id)
-    .select()
-    .single();
-
-  if (error) {
-    console.error('Project update error:', error);
-    res.status(500).json({ error: 'Something went wrong' });
-    return;
+  try {
+    const id = String(req.params.id);
+    const data = await projectService.updateProject(id, payload as Parameters<typeof projectService.updateProject>[1]);
+    response.success(res, data);
+  } catch (err) {
+    response.error(res, 'Something went wrong', 500);
   }
-  res.json(data);
 });
 
-router.delete('/:id', requireAuth, requireRole(['ADMIN']), async (req, res) => {
-  const { error } = await supabase.from('projects').delete().eq('id', req.params.id);
-
-  if (error) {
-    console.error('Project delete error:', error);
-    res.status(500).json({ error: 'Something went wrong' });
-    return;
+router.delete('/:id', requireAuth, requireRole(['ADMIN']), validateParams(projectIdParam), async (req, res) => {
+  try {
+    await projectService.deleteProject(String(req.params.id));
+    response.success(res, { message: 'Project deleted' });
+  } catch (err) {
+    response.error(res, 'Something went wrong', 500);
   }
-  res.json({ message: 'Project deleted' });
 });
 
 export default router;

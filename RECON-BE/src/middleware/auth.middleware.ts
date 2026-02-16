@@ -25,3 +25,24 @@ export const requireAuth = async (req: Request, res: Response, next: NextFunctio
     res.status(401).json({ error: 'Authentication failed' });
   }
 };
+
+/** Sets req.user when a valid token is present; never returns 401. Use for routes that work for both anonymous and authenticated users. */
+export const optionalAuth = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      next();
+      return;
+    }
+
+    const token = authHeader.replace('Bearer ', '');
+    const { data: { user }, error } = await supabase.auth.getUser(token);
+
+    if (!error && user) {
+      req.user = user;
+    }
+    next();
+  } catch {
+    next();
+  }
+};

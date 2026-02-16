@@ -1,106 +1,64 @@
 import express from 'express';
-import { supabase } from '../config/supabase.js';
 import { requireAuth } from '../middleware/auth.middleware.js';
 import { requireRole } from '../middleware/role.middleware.js';
-import { APPOINTMENT_STATUSES } from '../constants/index.js';
+import { validateBody, validateParams } from '../middleware/validation.middleware.js';
+import { createAppointmentBody } from '../validations/appointment.validations.js';
+import { appointmentIdParam, updateAppointmentStatusBody } from '../validations/appointment-status.validations.js';
+import * as response from '../utils/response.js';
+import * as appointmentService from '../services/appointment.service.js';
 
 const router = express.Router();
 
-router.post('/', requireAuth, async (req, res) => {
-  const { service, preferred_date, location } = req.body;
-
-  if (!service || !preferred_date) {
-    res.status(400).json({ error: 'Service and preferred date are required' });
-    return;
-  }
-
+router.post('/', requireAuth, validateBody(createAppointmentBody), async (req, res) => {
   if (!req.user) {
-    res.status(403).json({ error: 'Forbidden' });
+    response.error(res, 'Forbidden', 403, 'FORBIDDEN');
     return;
   }
-
-  const { data, error } = await supabase
-    .from('appointments')
-    .insert({
-      user_id: req.user.id,
-      service,
-      preferred_date,
-      location
-    })
-    .select()
-    .single();
-
-  if (error) {
-    console.error('Appointment create error:', error);
-    res.status(500).json({ error: 'Something went wrong' });
-    return;
+  try {
+    const data = await appointmentService.createAppointment(req.user.id, req.body);
+    response.success(res, { message: 'Appointment requested', data }, 201);
+  } catch (err) {
+    response.error(res, 'Something went wrong', 500);
   }
-  res.status(201).json({ message: 'Appointment requested', data });
 });
 
 router.get('/my', requireAuth, async (req, res) => {
   if (!req.user) {
-    res.status(403).json({ error: 'Forbidden' });
+    response.error(res, 'Forbidden', 403, 'FORBIDDEN');
     return;
   }
-
-  const { data, error } = await supabase
-    .from('appointments')
-    .select('*')
-    .eq('user_id', req.user.id)
-    .order('preferred_date', { ascending: true });
-
-  if (error) {
-    console.error('Appointments my list error:', error);
-    res.status(500).json({ error: 'Something went wrong' });
-    return;
+  try {
+    const data = await appointmentService.listMyAppointments(req.user.id);
+    response.success(res, data);
+  } catch (err) {
+    response.error(res, 'Something went wrong', 500);
   }
-  res.json(data);
 });
 
 router.get('/', requireAuth, requireRole(['ADMIN', 'STAFF']), async (req, res) => {
-  const { status } = req.query;
-
-  let query = supabase
-    .from('appointments')
-    .select('*, profiles(full_name)')
-    .order('preferred_date', { ascending: true });
-
-  if (status && typeof status === 'string') {
-    query = query.eq('status', status);
+  try {
+    const status = req.query.status === undefined
+      ? undefined
+      : Array.isArray(req.query.status)
+        ? (req.query.status as string[]).filter(Boolean)
+        : typeof req.query.status === 'string'
+          ? req.query.status
+          : undefined;
+    const data = await appointmentService.listAppointments({ status });
+    response.success(res, data);
+  } catch (err) {
+    response.error(res, 'Something went wrong', 500);
   }
-
-  const { data, error } = await query;
-
-  if (error) {
-    console.error('Appointments list error:', error);
-    res.status(500).json({ error: 'Something went wrong' });
-    return;
-  }
-  res.json(data);
 });
 
-router.patch('/:id', requireAuth, requireRole(['ADMIN', 'STAFF']), async (req, res) => {
-  const { status } = req.body as { status?: string };
-
-  if (!status || !(APPOINTMENT_STATUSES as readonly string[]).includes(status)) {
-    res.status(400).json({ error: 'Invalid status' });
-    return;
+router.patch('/:id', requireAuth, requireRole(['ADMIN', 'STAFF']), validateParams(appointmentIdParam), validateBody(updateAppointmentStatusBody), async (req, res) => {
+  try {
+    const id = String(req.params.id);
+    const data = await appointmentService.updateAppointmentStatus(id, req.body.status);
+    response.success(res, data);
+  } catch (err) {
+    response.error(res, 'Something went wrong', 500);
   }
-
-  const { data, error } = await supabase
-    .from('appointments')
-    .update({ status })
-    .eq('id', req.params.id)
-    .select()
-    .single();
-
-  if (error) {
-    console.error('Appointment update error:', error);
-    res.status(500).json({ error: 'Something went wrong' });
-    return;
-  }
-  res.json(data);
 });
 
 export default router;

@@ -1,10 +1,12 @@
 import type { Request, Response, NextFunction } from 'express';
 import { supabase } from '../config/supabase.js';
+import * as response from '../utils/response.js';
 
 export const requireRole = (roles: string[]) => {
+  const allowed = roles.map((r) => r.toUpperCase());
   return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     if (!req.user) {
-      res.status(403).json({ error: 'Profile not found or access denied' });
+      response.error(res, 'Profile not found or access denied', 403, 'FORBIDDEN');
       return;
     }
 
@@ -15,12 +17,13 @@ export const requireRole = (roles: string[]) => {
       .single();
 
     if (error || !data) {
-      res.status(403).json({ error: 'Profile not found or access denied' });
+      response.error(res, 'Profile not found or access denied', 403, 'FORBIDDEN');
       return;
     }
 
-    if (!roles.includes(data.role)) {
-      res.status(403).json({ error: 'Forbidden' });
+    const userRole = (data.role ?? '').toString().toUpperCase();
+    if (!allowed.includes(userRole)) {
+      response.error(res, 'Forbidden', 403, 'FORBIDDEN');
       return;
     }
 

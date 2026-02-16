@@ -1,110 +1,65 @@
 import express from 'express';
-import { supabase } from '../config/supabase.js';
-import { requireAuth } from '../middleware/auth.middleware.js';
+import { requireAuth, optionalAuth } from '../middleware/auth.middleware.js';
 import { requireRole } from '../middleware/role.middleware.js';
 import { sanitizeForSearch } from '../utils/sanitize.js';
-import { CONSULTATION_STATUSES } from '../constants/index.js';
+import { validateBody, validateParams } from '../middleware/validation.middleware.js';
+import { submitConsultationBody } from '../validations/consultation.validations.js';
+import { consultationIdParam, updateConsultationStatusBody } from '../validations/consultation-status.validations.js';
+import * as response from '../utils/response.js';
+import * as consultationService from '../services/consultation.service.js';
 
 const router = express.Router();
 
-router.post('/', async (req, res) => {
-  const { name, email, phone, service, location, message } = req.body;
-
-  if (!name || !email || !phone) {
-    res.status(400).json({ error: 'Name, email, and phone are required' });
-    return;
+router.post('/', optionalAuth, validateBody(submitConsultationBody), async (req, res) => {
+  try {
+    const userId = req.user?.id;
+    const data = await consultationService.submitConsultation(req.body, userId);
+    response.success(res, { message: 'Consultation request submitted', data }, 201);
+  } catch (err) {
+    response.error(res, 'Something went wrong', 500);
   }
-
-  const { data, error } = await supabase
-    .from('consultations')
-    .insert({ name, email, phone, service, location, message })
-    .select()
-    .single();
-
-  if (error) {
-    console.error('Consultation submit error:', error);
-    res.status(500).json({ error: 'Something went wrong' });
-    return;
-  }
-  res.status(201).json({ message: 'Consultation request submitted', data });
 });
 
 router.get('/', requireAuth, requireRole(['ADMIN', 'STAFF']), async (req, res) => {
-  const { status, search, from_date, to_date } = req.query;
-
-  let query = supabase
-    .from('consultations')
-    .select('*')
-    .order('created_at', { ascending: false });
-
-  if (status && typeof status === 'string') {
-    query = query.eq('status', status);
+  try {
+    const status = req.query.status === undefined
+      ? undefined
+      : Array.isArray(req.query.status)
+        ? (req.query.status as string[]).filter(Boolean)
+        : typeof req.query.status === 'string'
+          ? req.query.status
+          : undefined;
+    const search = typeof req.query.search === 'string' ? sanitizeForSearch(req.query.search) : undefined;
+    const from_date = typeof req.query.from_date === 'string' ? req.query.from_date : undefined;
+    const to_date = typeof req.query.to_date === 'string' ? req.query.to_date : undefined;
+    const data = await consultationService.listConsultations({ status, search, from_date, to_date });
+    response.success(res, data);
+  } catch (err) {
+    response.error(res, 'Something went wrong', 500);
   }
-
-  if (search) {
-    const safe = sanitizeForSearch(search);
-    if (safe) query = query.or(`name.ilike.%${safe}%,email.ilike.%${safe}%,phone.ilike.%${safe}%`);
-  }
-
-  if (from_date && typeof from_date === 'string') {
-    query = query.gte('created_at', from_date);
-  }
-
-  if (to_date && typeof to_date === 'string') {
-    query = query.lte('created_at', to_date);
-  }
-
-  const { data, error } = await query;
-
-  if (error) {
-    console.error('Consultations list error:', error);
-    res.status(500).json({ error: 'Something went wrong' });
-    return;
-  }
-  res.json(data);
 });
 
-router.patch('/:id', requireAuth, requireRole(['ADMIN', 'STAFF']), async (req, res) => {
-  const { status } = req.body as { status?: string };
-
-  if (!status || !(CONSULTATION_STATUSES as readonly string[]).includes(status)) {
-    res.status(400).json({ error: 'Invalid status' });
-    return;
+router.patch('/:id', requireAuth, requireRole(['ADMIN', 'STAFF']), validateParams(consultationIdParam), validateBody(updateConsultationStatusBody), async (req, res) => {
+  try {
+    const id = String(req.params.id);
+    const data = await consultationService.updateConsultationStatus(id, req.body.status);
+    response.success(res, data);
+  } catch (err) {
+    response.error(res, 'Something went wrong', 500);
   }
-
-  const { data, error } = await supabase
-    .from('consultations')
-    .update({ status })
-    .eq('id', req.params.id)
-    .select()
-    .single();
-
-  if (error) {
-    console.error('Consultation update error:', error);
-    res.status(500).json({ error: 'Something went wrong' });
-    return;
-  }
-  res.json(data);
 });
 
 router.get('/my', requireAuth, async (req, res) => {
   if (!req.user) {
-    res.status(403).json({ error: 'Forbidden' });
+    response.error(res, 'Forbidden', 403, 'FORBIDDEN');
     return;
   }
-
-  const { data, error } = await supabase
-    .from('consultations')
-    .select('*')
-    .eq('user_id', req.user.id)
-    .order('created_at', { ascending: false });
-
-  if (error) {
-    console.error('Consultations my list error:', error);
-    res.status(500).json({ error: 'Something went wrong' });
-    return;
+  try {
+    const data = await consultationService.listMyConsultations(req.user.id);
+    response.success(res, data);
+  } catch (err) {
+    response.error(res, 'Something went wrong', 500);
   }
-  res.json(data);
 });
 
 export default router;

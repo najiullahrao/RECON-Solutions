@@ -1,0 +1,16 @@
+export { HomePage } from './HomePage';
+export { ServicesPage } from './ServicesPage';
+export { ServiceDetailPage } from './ServiceDetailPage';
+export { ProjectsPage } from './ProjectsPage';
+export { ProjectDetailPage } from './ProjectDetailPage';
+export { ConsultationsPage } from './ConsultationsPage';
+export { AppointmentsPage } from './AppointmentsPage';
+export { AiPage } from './AiPage';
+export { LoginPage } from './LoginPage';
+export { RegisterPage } from './RegisterPage';
+export { DashboardPage } from './DashboardPage';
+export { MyConsultationsPage } from './MyConsultationsPage';
+export { MyAppointmentsPage } from './MyAppointmentsPage';
+export { AdminConsultationsPage } from './AdminConsultationsPage';
+export { AdminAppointmentsPage } from './AdminAppointmentsPage';
+export { ProfilePage } from './ProfilePage';
