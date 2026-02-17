@@ -90,7 +90,7 @@ export function ProfilePage() {
             </div>
           </div>
           <div className="mt-6 border-t border-stone-200 pt-6 dark:border-stone-700">
-            <Button variant="outline" onClick={handleLogoutClick} className="w-full sm:w-auto">
+            <Button variant="secondary" onClick={handleLogoutClick} className="w-full sm:w-auto">
               <LogOut className="mr-2 h-4 w-4" />
               Log out
             </Button>

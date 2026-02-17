@@ -88,7 +88,7 @@ export function ServiceDetailPage() {
       <div className="space-y-4">
         <p className="text-red-600 dark:text-red-400">{error ?? 'Service not found.'}</p>
         <Link to={ROUTES.SERVICES}>
-          <Button variant="outline">Back to services</Button>
+          <Button variant="secondary">Back to services</Button>
         </Link>
       </div>
     );
@@ -102,10 +102,10 @@ export function ServiceDetailPage() {
         </Link>
         {canManageServices && (
           <div className="flex gap-2">
-            <Button variant="outline" size="sm" onClick={() => setEditOpen(true)}>
+            <Button variant="secondary" size="sm" onClick={() => setEditOpen(true)}>
               Edit
             </Button>
-            <Button variant="danger" size="sm" onClick={() => setDeleteConfirm(true)}>
+            <Button variant="primary" size="sm" onClick={() => setDeleteConfirm(true)}>
               Delete
             </Button>
           </div>
@@ -154,7 +154,7 @@ export function ServiceDetailPage() {
           </div>
           <div className="flex gap-2">
             <Button type="submit" loading={editLoading}>Save</Button>
-            <Button type="button" variant="outline" onClick={() => setEditOpen(false)}>Cancel</Button>
+            <Button type="button" variant="secondary" onClick={() => setEditOpen(false)}>Cancel</Button>
           </div>
         </form>
       </Modal>
@@ -164,10 +164,10 @@ export function ServiceDetailPage() {
           Are you sure you want to delete &quot;{service.name}&quot;? This will deactivate the service.
         </p>
         <div className="mt-4 flex gap-2">
-          <Button variant="danger" loading={deleteLoading} onClick={handleDelete}>
+          <Button variant="primary" loading={deleteLoading} onClick={handleDelete}>
             Delete
           </Button>
-          <Button variant="outline" onClick={() => setDeleteConfirm(false)}>Cancel</Button>
+          <Button variant="secondary" onClick={() => setDeleteConfirm(false)}>Cancel</Button>
         </div>
       </Modal>
     </div>

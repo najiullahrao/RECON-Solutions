@@ -42,11 +42,11 @@ export function AppointmentsPage() {
 
   return (
     <div className="space-y-10">
-      <section className="rounded-2xl bg-gradient-to-br from-amber-600 to-amber-800 px-6 py-10 text-white shadow-lg md:py-12">
-        <h1 className="text-3xl font-bold tracking-tight md:text-4xl">
+      <section className="rounded-sm bg-[#800000] px-6 py-10 text-white md:py-12">
+        <h1 className="text-3xl font-bold tracking-tight md:text-4xl" style={{ letterSpacing: '-0.02em' }}>
           Book an appointment
         </h1>
-        <p className="mt-3 max-w-xl text-lg text-amber-100">
+        <p className="mt-3 max-w-xl text-lg text-white/90">
           Schedule a site visit or get a quote. Sign in to request a time and we’ll confirm with you shortly.
         </p>
       </section>
@@ -67,7 +67,7 @@ export function AppointmentsPage() {
                 </Button>
               </Link>
               <Link to={ROUTES.REGISTER}>
-                <Button variant="outline" size="lg">
+                <Button variant="secondary" size="lg">
                   Sign up
                 </Button>
               </Link>
@@ -100,7 +100,7 @@ export function AppointmentsPage() {
             <div className="rounded-2xl border border-stone-200 bg-white p-6 shadow-sm dark:border-stone-700 dark:bg-stone-800/50 md:p-8">
               {success && (
                 <div
-                  className="mb-6 rounded-xl bg-green-50 p-4 text-green-800 dark:bg-green-900/30 dark:text-green-200"
+                  className="mb-6 rounded-sm border border-gray-200 bg-[#f9f9f9] p-4 text-[#1a1a1a]"
                   role="alert"
                 >
                   Appointment requested. We’ll confirm shortly.
@@ -108,7 +108,7 @@ export function AppointmentsPage() {
               )}
               {error && (
                 <div
-                  className="mb-6 rounded-xl bg-red-50 p-4 text-red-700 dark:bg-red-900/30 dark:text-red-300"
+                  className="mb-6 rounded-sm border border-gray-200 bg-[#f9f9f9] p-4 text-[#1a1a1a]"
                   role="alert"
                 >
                   {error}

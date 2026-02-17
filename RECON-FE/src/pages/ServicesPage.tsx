@@ -164,7 +164,7 @@ export function ServicesPage() {
             <Button type="submit" loading={submitLoading}>
               Create service
             </Button>
-            <Button type="button" variant="outline" onClick={() => setModalOpen(false)}>
+            <Button type="button" variant="secondary" onClick={() => setModalOpen(false)}>
               Cancel
             </Button>
           </div>

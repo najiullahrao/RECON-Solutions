@@ -16,18 +16,18 @@ export function Modal({ open, onClose, title, children, className }: ModalProps)
       <div className="fixed inset-0 bg-stone-900/60" aria-hidden onClick={onClose} />
       <div
         className={cn(
-          'relative z-10 w-full max-w-md rounded-xl border border-stone-200 bg-white shadow-xl dark:border-stone-700 dark:bg-stone-800',
+          'relative z-10 w-full max-w-md rounded-sm border border-gray-200 bg-white',
           className
         )}
       >
-        <div className="flex items-center justify-between border-b border-stone-200 px-6 py-4 dark:border-stone-700">
-          <h2 id="modal-title" className="text-lg font-semibold text-stone-900 dark:text-stone-100">
+        <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
+          <h2 id="modal-title" className="text-lg font-bold text-[#1a1a1a]" style={{ letterSpacing: '-0.02em' }}>
             {title}
           </h2>
           <button
             type="button"
             onClick={onClose}
-            className="rounded p-1 text-stone-500 hover:bg-stone-100 hover:text-stone-700 dark:hover:bg-stone-700 dark:hover:text-stone-300"
+            className="rounded-sm p-1 text-[#1a1a1a]/60 hover:bg-[#f9f9f9] hover:text-[#1a1a1a]"
             aria-label="Close"
           >
             <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

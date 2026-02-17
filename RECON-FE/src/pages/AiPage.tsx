@@ -18,10 +18,12 @@ import {
   TrendingUp,
   MessageCircle,
   Zap,
-  Trash2,
   CheckCircle2,
   ArrowRight,
-  Pencil
+  Pencil,
+  Copy,
+  Check,
+  RotateCcw
 } from 'lucide-react';
 
 /** Improved link and bold text renderer */
@@ -50,11 +52,11 @@ function renderContent(text: string): React.ReactNode[] {
         
         parts.push(
           isSameSite ? (
-            <Link key={`link-${match.index}`} to={href} className="text-blue-600 underline decoration-blue-500/30 hover:decoration-blue-500 dark:text-blue-400 transition-colors">
+            <Link key={`link-${match.index}`} to={href} className="text-[#800000] underline decoration-[#800000]/30 hover:decoration-[#800000] transition-colors">
               {label}
             </Link>
           ) : (
-            <a key={`link-${match.index}`} href={href} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline decoration-blue-500/30 hover:decoration-blue-500 dark:text-blue-400 transition-colors">
+            <a key={`link-${match.index}`} href={href} target="_blank" rel="noopener noreferrer" className="text-[#800000] underline decoration-[#800000]/30 hover:decoration-[#800000] transition-colors">
               {label}
             </a>
           )
@@ -81,10 +83,10 @@ function FormattedMessage({ content, isUser }: { content: string; isUser: boolea
         <ul key={`list-${key}`} className="my-3 space-y-2 ml-1">
           {currentList.map((item, idx) => (
             <li key={idx} className="flex items-start gap-3">
-              <div className="mt-1.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900/30">
-                <CheckCircle2 className="h-3 w-3 text-blue-600 dark:text-blue-400" />
+              <div className="mt-1.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-sm bg-[#800000]/10">
+                <CheckCircle2 className="h-3 w-3 text-[#800000]" />
               </div>
-              <span className="text-stone-700 dark:text-stone-300 leading-relaxed">
+              <span className="text-[#1a1a1a] leading-relaxed">
                 {renderContent(item)}
               </span>
             </li>
@@ -203,63 +205,70 @@ export function AiPage() {
   };
 
   const suggestedQuestions = [
-    { icon: Lightbulb, text: 'What services do you offer?', color: 'text-blue-600' },
-    { icon: TrendingUp, text: 'Typical project duration?', color: 'text-blue-600' },
-    { icon: MessageCircle, text: 'Schedule a consultation?', color: 'text-blue-600' },
-    { icon: Zap, text: 'Why choose us?', color: 'text-blue-600' },
+    { icon: Lightbulb, text: 'What services do you offer?', gradient: 'from-amber-500 to-orange-500' },
+    { icon: TrendingUp, text: 'Typical project duration?', gradient: 'from-emerald-500 to-teal-500' },
+    { icon: MessageCircle, text: 'Schedule a consultation?', gradient: 'from-blue-500 to-cyan-500' },
+    { icon: Zap, text: 'Why choose us?', gradient: 'from-purple-500 to-pink-500' },
   ];
 
   return (
-    <div className="mx-auto max-w-4xl space-y-6 pb-12 pt-4 px-4">
+    <div className="mx-auto max-w-5xl space-y-6 pb-12 pt-6 px-4">
       {/* Header */}
-      <div className="rounded-2xl bg-gradient-to-br from-blue-600 via-blue-700 to-blue-800 p-8 text-white shadow-xl relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full -mr-20 -mt-20 blur-3xl"></div>
-        <div className="absolute bottom-0 left-0 w-32 h-32 bg-blue-400/20 rounded-full -ml-16 -mb-16 blur-2xl"></div>
+      <div className="rounded-2xl bg-gradient-to-br from-[#800000] via-[#900000] to-[#700000] p-8 text-white relative overflow-hidden shadow-2xl">
         <div className="relative z-10">
-          <div className="flex items-center gap-2 mb-2 bg-white/20 backdrop-blur-sm w-fit px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">
+          <div className="flex items-center gap-2 mb-2 bg-white/20 backdrop-blur-sm w-fit px-3 py-1 rounded-sm text-xs font-bold uppercase tracking-wider">
             <Sparkles className="h-3 w-3" />
             AI Assistant
           </div>
-          <h1 className="text-3xl font-bold">Construction Expert AI</h1>
-          <p className="opacity-90 mt-2 text-blue-100">Ask about estimates, timelines, or our building process.</p>
+          <h1 className="text-4xl font-bold" style={{ letterSpacing: '-0.02em' }}>Construction Expert AI</h1>
+          <p className="opacity-90 mt-2 text-lg">Ask about estimates, timelines, or our building process.</p>
         </div>
       </div>
 
-      <Card className="border-blue-100 shadow-2xl dark:border-blue-900/50">
+      <Card className="border-none shadow-xl rounded-2xl bg-white/80 backdrop-blur-sm">
         <CardContent className="p-0">
           {/* Messages */}
-          <div className="h-[500px] overflow-y-auto p-6 space-y-8 scrollbar-thin scrollbar-thumb-stone-200">
+          <div className="h-[550px] overflow-y-auto p-6 space-y-8 scrollbar-thin scrollbar-thumb-stone-200 bg-gradient-to-b from-stone-50/50 to-white">
             {messages.length === 0 ? (
               <div className="h-full flex flex-col items-center justify-center opacity-60">
-                <Bot className="h-12 w-12 mb-4 text-stone-300" />
+                <div className="relative mb-4">
+                  <div className="absolute inset-0 bg-[#800000]/20 blur-xl rounded-full"></div>
+                  <Bot className="h-12 w-12 text-stone-300 relative z-10" />
+                </div>
                 <p>Start a conversation below</p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-6 w-full max-w-md">
-                   {suggestedQuestions.map((s, i) => (
-                     <button key={i} onClick={() => setQuestion(s.text)} className="text-xs p-3 border border-blue-200 rounded-xl hover:bg-blue-50 dark:hover:bg-blue-950/30 text-left transition-all duration-200 hover:shadow-md hover:border-blue-300 dark:border-blue-800/50">
-                       {s.text}
-                     </button>
-                   ))}
+                   {suggestedQuestions.map((s, i) => {
+                     const Icon = s.icon;
+                     return (
+                       <button key={i} onClick={() => setQuestion(s.text)} className="text-xs p-3 border-2 border-stone-200 rounded-xl hover:bg-[#f9f9f9] text-left transition-all duration-200 hover:border-[#800000] hover:-translate-y-0.5 flex items-center gap-2 text-[#4a0000]">
+                         <div className={`p-1.5 rounded-lg bg-gradient-to-br ${s.gradient} text-white`}>
+                           <Icon className="h-3 w-3" />
+                         </div>
+                         {s.text}
+                       </button>
+                     );
+                   })}
                 </div>
               </div>
             ) : (
               messages.map((msg, i) => (
                 <div key={i} className={cn("flex gap-4 animate-in fade-in slide-in-from-bottom-2", msg.role === 'user' ? "flex-row-reverse" : "flex-row")}>
-                  <div className={cn("h-9 w-9 rounded-full flex items-center justify-center shrink-0 shadow-md", msg.role === 'user' ? "bg-gradient-to-br from-blue-700 to-blue-800" : "bg-gradient-to-br from-blue-500 to-blue-600")}>
+                  <div className={cn("h-10 w-10 rounded-xl flex items-center justify-center shrink-0", msg.role === 'user' ? "bg-[#800000]" : "bg-[#800000]")}>
                     {msg.role === 'user' ? <User className="h-5 w-5 text-white" /> : <Bot className="h-5 w-5 text-white" />}
                   </div>
                   <div className={cn("relative group max-w-[80%]", msg.role === 'user' ? "items-end" : "items-start")}>
-                    <div className={cn("rounded-2xl px-5 py-3 shadow-md text-sm leading-relaxed transition-all duration-200", 
-                      msg.role === 'user' ? "bg-gradient-to-br from-blue-600 to-blue-700 text-white rounded-tr-none hover:shadow-lg" : "bg-white border border-blue-100 dark:bg-stone-900 dark:border-blue-900/50 rounded-tl-none hover:border-blue-200 dark:hover:border-blue-800")}>
+                    <div className={cn("rounded-2xl px-5 py-4 text-[15px] leading-relaxed transition-all duration-200 shadow-md hover:shadow-lg", 
+                      msg.role === 'user' ? "bg-gradient-to-br from-[#800000] to-[#900000] text-white rounded-tr-none" : "bg-white border-2 border-stone-100 rounded-tl-none")}>
                       <FormattedMessage content={msg.content} isUser={msg.role === 'user'} />
                     </div>
                     
                     <div className={cn("mt-1 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity", msg.role === 'user' ? "justify-end" : "justify-start")}>
-                      <button onClick={() => copyMessage(msg.content, i)} className="text-[10px] font-bold uppercase text-stone-400 hover:text-stone-600">
-                        {copiedIndex === i ? "Copied" : "Copy"}
+                      <button onClick={() => copyMessage(msg.content, i)} className="p-1.5 rounded-full bg-white border border-stone-200 shadow-sm hover:bg-stone-50 transition-colors">
+                        {copiedIndex === i ? <Check className="h-3 w-3 text-[#800000]" /> : <Copy className="h-3 w-3 text-stone-400" />}
                       </button>
                       {msg.role === 'user' && (
-                        <button onClick={() => editUserMessage(i)} className="text-[10px] font-bold uppercase text-stone-400 hover:text-stone-600 flex items-center gap-1">
-                          <Pencil className="h-2 w-2" /> Edit
+                        <button onClick={() => editUserMessage(i)} className="p-1.5 rounded-full bg-white border border-stone-200 shadow-sm hover:bg-stone-50 transition-colors">
+                          <Pencil className="h-3 w-3 text-stone-400" />
                         </button>
                       )}
                     </div>
@@ -269,13 +278,13 @@ export function AiPage() {
             )}
             {loading && (
               <div className="flex gap-4">
-                <div className="h-9 w-9 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center animate-pulse shadow-md">
+                <div className="h-10 w-10 rounded-xl bg-[#800000] flex items-center justify-center animate-pulse">
                   <Bot className="h-5 w-5 text-white" />
                 </div>
-                <div className="bg-gradient-to-r from-blue-50 to-white dark:from-blue-950/30 dark:to-stone-800 border border-blue-100 dark:border-blue-900/50 rounded-2xl rounded-tl-none px-5 py-3 flex gap-1 items-center">
-                  <div className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-bounce [animation-delay:-0.3s]" />
-                  <div className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-bounce [animation-delay:-0.15s]" />
-                  <div className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-bounce" />
+                <div className="bg-white border-2 border-stone-100 rounded-2xl rounded-tl-none px-5 py-4 flex gap-1 items-center shadow-md">
+                  <div className="w-1.5 h-1.5 bg-[#800000] rounded-full animate-bounce [animation-delay:-0.3s]" />
+                  <div className="w-1.5 h-1.5 bg-[#800000] rounded-full animate-bounce [animation-delay:-0.15s]" />
+                  <div className="w-1.5 h-1.5 bg-[#800000] rounded-full animate-bounce" />
                 </div>
               </div>
             )}
@@ -283,7 +292,7 @@ export function AiPage() {
           </div>
 
           {/* Input */}
-          <div className="p-6 border-t border-blue-100 dark:border-blue-900/50 bg-gradient-to-r from-blue-50/50 to-white dark:from-blue-950/30 dark:to-stone-900/50">
+          <div className="p-6 border-t border-gray-200 bg-[#f9f9f9]">
             <form onSubmit={(e) => { e.preventDefault(); sendQuestion(); }} className="flex gap-3">
               <div className="relative flex-1">
                 <Input
@@ -291,24 +300,24 @@ export function AiPage() {
                   value={question}
                   onChange={(e) => setQuestion(e.target.value)}
                   placeholder={editingIndex !== null ? "Edit your message..." : "Ask a question..."}
-                  className="h-12 bg-white dark:bg-stone-950 pr-12 rounded-xl border-blue-200 dark:border-blue-900/50"
+                  className="h-14 bg-white pr-12 rounded-xl border-2 border-stone-200"
                   disabled={loading}
                 />
                 {editingIndex !== null && (
-                   <button type="button" onClick={() => {setEditingIndex(null); setQuestion('');}} className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-red-500 hover:text-red-700 transition-colors">
+                   <button type="button" onClick={() => {setEditingIndex(null); setQuestion('');}} className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-[#800000] hover:text-[#6b0000] transition-colors">
                      Cancel
                    </button>
                 )}
               </div>
-              <Button type="submit" disabled={!question.trim() || loading} className="h-12 w-12 rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white p-0 shadow-lg hover:shadow-xl transition-all">
+              <Button type="submit" disabled={!question.trim() || loading} className="h-14 w-14 rounded-xl border-none bg-gradient-to-br from-[#800000] to-[#a00000] hover:from-[#900000] hover:to-[#b00000] hover:scale-105 text-white p-0 transition-all">
                 <Send className="h-5 w-5" />
               </Button>
             </form>
             <div className="flex justify-between items-center mt-3">
-               <p className="text-[10px] text-stone-400">AI-powered responses may vary.</p>
+               <p className="text-[10px] text-[#1a1a1a]/60">AI-powered responses may vary.</p>
                {messages.length > 0 && (
-                 <button onClick={clearChat} className="text-[10px] font-bold text-stone-400 hover:text-red-500 flex items-center gap-1">
-                   <Trash2 className="h-3 w-3" /> Clear Chat
+                 <button onClick={clearChat} className="text-[10px] font-bold text-[#1a1a1a]/60 hover:text-[#800000] flex items-center gap-1">
+                   <RotateCcw className="h-3 w-3" /> Clear Chat
                  </button>
                )}
             </div>
