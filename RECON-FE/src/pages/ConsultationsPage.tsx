@@ -43,11 +43,11 @@ export function ConsultationsPage() {
 
   return (
     <div className="space-y-10">
-      <section className="rounded-2xl bg-gradient-to-br from-amber-600 to-amber-800 px-6 py-10 text-white shadow-lg md:py-12">
-        <h1 className="text-3xl font-bold tracking-tight md:text-4xl">
+      <section className="rounded-sm bg-[#800000] px-6 py-10 text-white md:py-12">
+        <h1 className="text-3xl font-bold tracking-tight md:text-4xl" style={{ letterSpacing: '-0.02em' }}>
           Request a consultation
         </h1>
-        <p className="mt-3 max-w-xl text-lg text-amber-100">
+        <p className="mt-3 max-w-xl text-lg text-white/90">
           Tell us about your project. We’ll review your details and get back to you within 1–2 business days.
         </p>
       </section>
@@ -59,25 +59,25 @@ export function ConsultationsPage() {
           </h2>
           <ul className="mt-4 space-y-3 text-stone-600 dark:text-stone-400">
               <li className="flex gap-3">
-                <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-blue-500" aria-hidden />
+                <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-sm bg-[#800000]" aria-hidden />
                 We review your request and match it with the right team.
               </li>
               <li className="flex gap-3">
-                <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-blue-500" aria-hidden />
+                <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-sm bg-[#800000]" aria-hidden />
                 Someone will contact you by phone or email to discuss next steps.
               </li>
               <li className="flex gap-3">
-                <span className="mt-1.5 h-1.5 shrink-0 rounded-full bg-blue-500" aria-hidden />
+                <span className="mt-1.5 h-1.5 shrink-0 rounded-sm bg-[#800000]" aria-hidden />
                 No obligation—just a conversation to see how we can help.
               </li>
           </ul>
         </div>
 
         <div className="lg:col-span-3">
-          <div className="rounded-2xl border border-blue-100 bg-white p-6 shadow-md dark:border-blue-900/50 dark:bg-stone-800/50 md:p-8 hover:shadow-lg transition-shadow">
+          <div className="rounded-sm border border-gray-200 bg-white p-6 md:p-8 transition-all hover:-translate-y-0.5 hover:shadow-[0_1px_2px_rgba(0,0,0,0.08)]">
             {success && (
               <div
-                className="mb-6 rounded-xl bg-green-50 p-4 text-green-800 dark:bg-green-900/30 dark:text-green-200"
+                className="mb-6 rounded-sm border border-gray-200 bg-[#f9f9f9] p-4 text-[#1a1a1a]"
                 role="alert"
               >
                 Request submitted successfully. We’ll be in touch soon.
@@ -85,7 +85,7 @@ export function ConsultationsPage() {
             )}
             {error && (
               <div
-                className="mb-6 rounded-xl bg-red-50 p-4 text-red-700 dark:bg-red-900/30 dark:text-red-300"
+                className="mb-6 rounded-sm border border-gray-200 bg-[#f9f9f9] p-4 text-[#1a1a1a]"
                 role="alert"
               >
                 {error}

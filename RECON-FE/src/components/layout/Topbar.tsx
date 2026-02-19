@@ -12,12 +12,12 @@ export function Topbar({ onMenuClick, sidebarOpen }: TopbarProps) {
   const { isAuthenticated } = useAuth();
 
   return (
-    <header className="sticky top-0 z-30 flex h-14 items-center justify-between border-b border-blue-100 bg-gradient-to-r from-white to-blue-50/50 px-4 backdrop-blur shadow-sm dark:border-blue-900/50 dark:from-stone-900 dark:to-blue-950/30">
+    <header className="sticky top-0 z-30 flex h-14 items-center justify-between border-b border-gray-200 bg-white px-4 backdrop-blur">
       <div className="flex items-center gap-3">
         <button
           type="button"
           onClick={onMenuClick}
-          className="rounded-lg p-2 text-stone-600 hover:bg-blue-100 dark:text-stone-400 dark:hover:bg-blue-950/30 transition-colors"
+          className="rounded-sm p-2 text-[#1a1a1a] hover:bg-[#f9f9f9] transition-colors"
           aria-expanded={sidebarOpen}
           aria-controls="sidebar"
           aria-label={sidebarOpen ? 'Close sidebar' : 'Open sidebar'}
@@ -36,15 +36,15 @@ export function Topbar({ onMenuClick, sidebarOpen }: TopbarProps) {
             )}
           </svg>
         </button>
-        <span className="text-sm font-semibold text-stone-800 dark:text-stone-200 lg:text-base">
-          RECON Solutions
-        </span>
+        <Link to={ROUTES.HOME} className="flex items-center" aria-label="RECON Solutions home">
+          <img src="/RECON.png" alt="RECON Solutions" className="h-10 w-auto object-contain lg:h-50" />
+        </Link>
       </div>
       <div className="flex items-center gap-2">
         {!isAuthenticated && (
           <>
             <Link to={ROUTES.LOGIN}>
-              <Button variant="ghost" size="sm">
+              <Button variant="secondary" size="sm">
                 Log in
               </Button>
             </Link>

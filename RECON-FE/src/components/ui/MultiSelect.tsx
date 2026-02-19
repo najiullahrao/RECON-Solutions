@@ -54,7 +54,7 @@ export function MultiSelect({
   return (
     <div ref={containerRef} className={cn('relative w-full', className)}>
       {label && (
-        <label className="mb-1 block text-sm font-medium text-stone-700 dark:text-stone-300">
+        <label className="mb-1 block text-sm font-medium text-[#1a1a1a]">
           {label}
         </label>
       )}
@@ -62,15 +62,15 @@ export function MultiSelect({
         type="button"
         onClick={() => setOpen((o) => !o)}
         className={cn(
-          'flex min-h-[42px] w-full items-center justify-between rounded-lg border border-stone-300 bg-white px-3 py-2 text-left text-sm shadow-sm transition-colors focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500 dark:border-stone-600 dark:bg-stone-800 dark:text-stone-100',
-          value.length > 0 ? 'text-stone-900' : 'text-stone-500 dark:text-stone-400'
+          'flex min-h-[42px] w-full items-center justify-between rounded-sm border border-gray-200 bg-white px-3 py-2 text-left text-sm transition-colors focus:border-[#800000] focus:outline-none focus:ring-1 focus:ring-[#800000]',
+          value.length > 0 ? 'text-[#1a1a1a]' : 'text-[#1a1a1a]/60'
         )}
         aria-haspopup="listbox"
         aria-expanded={open}
       >
         <span className="truncate">{displayText}</span>
         <svg
-          className={cn('h-4 w-4 shrink-0 text-stone-400 transition-transform', open && 'rotate-180')}
+          className={cn('h-4 w-4 shrink-0 text-[#1a1a1a]/60 transition-transform', open && 'rotate-180')}
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -81,7 +81,7 @@ export function MultiSelect({
       {open && (
         <ul
           role="listbox"
-          className="absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-lg border border-stone-200 bg-white py-1 shadow-lg dark:border-stone-700 dark:bg-stone-800"
+          className="absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-sm border border-gray-200 bg-white py-1"
         >
           {value.length > 0 && (
             <li
@@ -90,7 +90,7 @@ export function MultiSelect({
                 onChange([]);
                 setOpen(false);
               }}
-              className="flex cursor-pointer items-center gap-2 border-b border-stone-100 px-3 py-2 text-sm font-medium text-amber-600 hover:bg-amber-50 dark:border-stone-700 dark:text-amber-400 dark:hover:bg-amber-900/20"
+              className="flex cursor-pointer items-center gap-2 border-b border-gray-200 px-3 py-2 text-sm font-medium text-[#800000] hover:bg-[#800000]/5"
             >
               Clear all
             </li>
@@ -104,16 +104,16 @@ export function MultiSelect({
                 aria-selected={checked}
                 onClick={() => toggle(opt.value)}
                 className={cn(
-                  'flex cursor-pointer items-center gap-2 px-3 py-2 text-sm transition-colors hover:bg-stone-50 dark:hover:bg-stone-700',
-                  checked && 'bg-amber-50 dark:bg-amber-900/20'
+                  'flex cursor-pointer items-center gap-2 px-3 py-2 text-sm transition-colors hover:bg-[#f9f9f9]',
+                  checked && 'bg-[#800000]/5'
                 )}
               >
                 <span
                   className={cn(
-                    'flex h-4 w-4 shrink-0 items-center justify-center rounded border',
+                    'flex h-4 w-4 shrink-0 items-center justify-center rounded-sm border',
                     checked
-                      ? 'border-amber-600 bg-amber-600 text-white'
-                      : 'border-stone-300 dark:border-stone-600'
+                      ? 'border-[#800000] bg-[#800000] text-white'
+                      : 'border-gray-200'
                   )}
                 >
                   {checked && (
@@ -126,7 +126,7 @@ export function MultiSelect({
                     </svg>
                   )}
                 </span>
-                <span className="text-stone-700 dark:text-stone-300">{opt.label}</span>
+                <span className="text-[#1a1a1a]">{opt.label}</span>
               </li>
             );
           })}

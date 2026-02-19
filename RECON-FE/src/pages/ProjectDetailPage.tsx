@@ -139,7 +139,7 @@ export function ProjectDetailPage() {
       <div className="space-y-4">
         <p className="text-red-600 dark:text-red-400">{error ?? 'Project not found.'}</p>
         <Link to={ROUTES.PROJECTS}>
-          <Button variant="outline">Back to projects</Button>
+          <Button variant="secondary">Back to projects</Button>
         </Link>
       </div>
     );
@@ -148,16 +148,16 @@ export function ProjectDetailPage() {
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
-        <Link to={ROUTES.PROJECTS} className="text-sm font-medium text-amber-600 hover:underline">
+        <Link to={ROUTES.PROJECTS} className="text-sm font-medium text-[#800000] hover:underline">
           ← Back to projects
         </Link>
         {canManageProjects && (
           <div className="flex gap-2">
-            <Button variant="outline" size="sm" onClick={() => setEditOpen(true)}>
+            <Button variant="secondary" size="sm" onClick={() => setEditOpen(true)}>
               Edit
             </Button>
             {isAdmin && (
-              <Button variant="danger" size="sm" onClick={() => setDeleteConfirm(true)}>
+              <Button variant="primary" size="sm" onClick={() => setDeleteConfirm(true)}>
                 Delete
               </Button>
             )}
@@ -283,7 +283,7 @@ export function ProjectDetailPage() {
           </div>
           <div className="flex gap-2">
             <Button type="submit" loading={editLoading}>Save</Button>
-            <Button type="button" variant="outline" onClick={() => setEditOpen(false)}>Cancel</Button>
+            <Button type="button" variant="secondary" onClick={() => setEditOpen(false)}>Cancel</Button>
           </div>
         </form>
       </Modal>
@@ -293,10 +293,10 @@ export function ProjectDetailPage() {
           Are you sure you want to delete &quot;{project.title}&quot;? This cannot be undone.
         </p>
         <div className="mt-4 flex gap-2">
-          <Button variant="danger" loading={deleteLoading} onClick={handleDelete}>
+          <Button variant="primary" loading={deleteLoading} onClick={handleDelete}>
             Delete
           </Button>
-          <Button variant="outline" onClick={() => setDeleteConfirm(false)}>Cancel</Button>
+          <Button variant="secondary" onClick={() => setDeleteConfirm(false)}>Cancel</Button>
         </div>
       </Modal>
     </div>

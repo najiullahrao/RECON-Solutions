@@ -1,11 +1,10 @@
-import { createBrowserRouter, Navigate, Outlet } from 'react-router-dom';
+import { createBrowserRouter, Navigate } from 'react-router-dom';
 import type { RouteObject } from 'react-router-dom';
-import { AppLayout } from './components/layout';
+import { ConditionalLayout } from './components/ConditionalLayout';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { StaffRedirect } from './components/StaffRedirect';
 import { ROUTES } from './constants/routes';
 import {
-  HomePage,
   ServicesPage,
   ServiceDetailPage,
   ProjectsPage,
@@ -21,14 +20,15 @@ import {
   AdminConsultationsPage,
   AdminAppointmentsPage,
   ProfilePage,
+  ToolsEstimatorPage,
+  ToolsStructuralPage,
 } from './pages';
 
 const withLayout: RouteObject[] = [
   {
     path: ROUTES.HOME,
-    element: <AppLayout><Outlet /></AppLayout>,
+    element: <ConditionalLayout />,
     children: [
-      { index: true, element: <HomePage /> },
       { path: 'services', element: <ServicesPage /> },
       { path: 'services/:id', element: <ServiceDetailPage /> },
       { path: 'projects', element: <ProjectsPage /> },
@@ -50,6 +50,8 @@ const withLayout: RouteObject[] = [
         ),
       },
       { path: 'ai', element: <AiPage /> },
+      { path: 'tools/estimator', element: <ToolsEstimatorPage /> },
+      { path: 'tools/structural-logs', element: <ToolsStructuralPage /> },
       { path: 'login', element: <LoginPage /> },
       { path: 'register', element: <RegisterPage /> },
       {

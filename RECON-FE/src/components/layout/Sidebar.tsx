@@ -51,15 +51,15 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
       <aside
         id="sidebar"
         className={cn(
-          'fixed left-0 top-0 z-50 h-full w-64 transform border-r border-blue-100 bg-gradient-to-b from-white to-blue-50/30 shadow-xl transition-transform duration-200 ease-in-out dark:border-blue-900/50 dark:from-stone-900 dark:to-blue-950/20 lg:translate-x-0',
+          'fixed left-0 top-0 z-50 h-full w-64 transform border-r border-gray-200 bg-white transition-transform duration-200 ease-in-out lg:translate-x-0',
           isOpen ? 'translate-x-0' : '-translate-x-full'
         )}
         aria-label="Main navigation"
       >
         <div className="flex h-full flex-col">
-          <div className="flex items-center gap-2 border-b border-stone-200 px-4 py-4 dark:border-stone-700 bg-gradient-to-r from-blue-600 to-blue-700">
-            <span className="text-2xl font-bold text-white">RECON</span>
-            <span className="text-sm text-blue-100">Solutions</span>
+          <div className="flex items-center gap-2 border-b border-gray-200 px-4 py-4 bg-[#800000]">
+            <span className="text-2xl font-bold text-white" style={{ letterSpacing: '-0.02em' }}>RECON</span>
+            <span className="text-sm text-white/90">Solutions</span>
           </div>
           <nav className="flex-1 overflow-y-auto px-3 py-4">
             <ul className="space-y-1">
@@ -70,10 +70,10 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                     onClick={() => onClose?.()}
                     className={({ isActive }) =>
                       cn(
-                        'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors',
+                        'flex items-center gap-3 rounded-sm px-3 py-2.5 text-sm font-medium transition-colors',
                         isActive
-                          ? 'bg-gradient-to-r from-blue-50 to-blue-100 text-blue-700 dark:from-blue-900/40 dark:to-blue-800/40 dark:text-blue-300 shadow-sm'
-                          : 'text-stone-700 hover:bg-blue-50 dark:text-stone-300 dark:hover:bg-blue-950/30 transition-colors'
+                          ? 'bg-[#800000] text-white'
+                          : 'text-[#1a1a1a] hover:bg-[#f9f9f9] transition-colors'
                       )
                     }
                     end={to === ROUTES.HOME}
@@ -90,10 +90,10 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                     onClick={() => onClose?.()}
                     className={({ isActive }) =>
                       cn(
-                        'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors',
+                        'flex items-center gap-3 rounded-sm px-3 py-2.5 text-sm font-medium transition-colors',
                         isActive
-                          ? 'bg-gradient-to-r from-blue-50 to-blue-100 text-blue-700 dark:from-blue-900/40 dark:to-blue-800/40 dark:text-blue-300 shadow-sm'
-                          : 'text-stone-700 hover:bg-blue-50 dark:text-stone-300 dark:hover:bg-blue-950/30 transition-colors'
+                          ? 'bg-[#800000] text-white'
+                          : 'text-[#1a1a1a] hover:bg-[#f9f9f9] transition-colors'
                       )
                     }
                   >
@@ -109,10 +109,10 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                     onClick={() => onClose?.()}
                     className={({ isActive }) =>
                       cn(
-                        'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors',
+                        'flex items-center gap-3 rounded-sm px-3 py-2.5 text-sm font-medium transition-colors',
                         isActive
-                          ? 'bg-gradient-to-r from-blue-50 to-blue-100 text-blue-700 dark:from-blue-900/40 dark:to-blue-800/40 dark:text-blue-300 shadow-sm'
-                          : 'text-stone-700 hover:bg-blue-50 dark:text-stone-300 dark:hover:bg-blue-950/30 transition-colors'
+                          ? 'bg-[#800000] text-white'
+                          : 'text-[#1a1a1a] hover:bg-[#f9f9f9] transition-colors'
                       )
                     }
                   >
@@ -128,10 +128,10 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                     onClick={() => onClose?.()}
                     className={({ isActive }) =>
                       cn(
-                        'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors',
+                        'flex items-center gap-3 rounded-sm px-3 py-2.5 text-sm font-medium transition-colors',
                         isActive
-                          ? 'bg-gradient-to-r from-blue-50 to-blue-100 text-blue-700 dark:from-blue-900/40 dark:to-blue-800/40 dark:text-blue-300 shadow-sm'
-                          : 'text-stone-700 hover:bg-blue-50 dark:text-stone-300 dark:hover:bg-blue-950/30 transition-colors'
+                          ? 'bg-[#800000] text-white'
+                          : 'text-[#1a1a1a] hover:bg-[#f9f9f9] transition-colors'
                       )
                     }
                   >
@@ -143,7 +143,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
             </ul>
           </nav>
           {isAuthenticated && (
-            <div className="border-t border-stone-200 px-3 py-3 dark:border-stone-700">
+            <div className="border-t border-gray-200 px-3 py-3">
               <NavLink
                 to={ROUTES.PROFILE}
                 onClick={() => onClose?.()}

@@ -1,4 +1,5 @@
 export { HomePage } from './HomePage';
+export { LandingPage } from './LandingPage';
 export { ServicesPage } from './ServicesPage';
 export { ServiceDetailPage } from './ServiceDetailPage';
 export { ProjectsPage } from './ProjectsPage';
@@ -14,3 +15,5 @@ export { MyAppointmentsPage } from './MyAppointmentsPage';
 export { AdminConsultationsPage } from './AdminConsultationsPage';
 export { AdminAppointmentsPage } from './AdminAppointmentsPage';
 export { ProfilePage } from './ProfilePage';
+export { ToolsEstimatorPage } from './ToolsEstimatorPage';
+export { ToolsStructuralPage } from './ToolsStructuralPage';

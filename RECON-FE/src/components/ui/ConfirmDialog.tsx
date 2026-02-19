@@ -37,19 +37,19 @@ export function ConfirmDialog({
       aria-describedby="confirm-dialog-desc"
     >
       <div className="fixed inset-0 bg-stone-900/60" aria-hidden onClick={onClose} />
-      <div className="relative z-10 w-full max-w-sm rounded-xl border border-stone-200 bg-white p-6 shadow-xl dark:border-stone-700 dark:bg-stone-800">
-        <h2 id="confirm-dialog-title" className="text-lg font-semibold text-stone-900 dark:text-stone-100">
+      <div className="relative z-10 w-full max-w-sm rounded-sm border border-gray-200 bg-white p-6">
+        <h2 id="confirm-dialog-title" className="text-lg font-bold text-[#1a1a1a]" style={{ letterSpacing: '-0.02em' }}>
           {title}
         </h2>
-        <p id="confirm-dialog-desc" className="mt-2 text-stone-600 dark:text-stone-400">
+        <p id="confirm-dialog-desc" className="mt-2 text-[#1a1a1a]/80">
           {message}
         </p>
         <div className="mt-6 flex flex-wrap gap-3 justify-end">
-          <Button variant="outline" onClick={onClose} disabled={loading}>
+          <Button variant="secondary" onClick={onClose} disabled={loading}>
             {cancelLabel}
           </Button>
           <Button
-            variant={isDanger ? 'danger' : 'primary'}
+            variant="primary"
             onClick={onConfirm}
             loading={loading}
           >

@@ -293,7 +293,7 @@ export function ProjectsPage() {
             <Button type="submit" loading={submitLoading}>
               Create project
             </Button>
-            <Button type="button" variant="outline" onClick={() => setModalOpen(false)}>
+            <Button type="button" variant="secondary" onClick={() => setModalOpen(false)}>
               Cancel
             </Button>
           </div>

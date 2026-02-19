@@ -7,6 +7,8 @@ export const ROUTES = {
   CONSULTATIONS: '/consultations',
   APPOINTMENTS: '/appointments',
   AI: '/ai',
+  TOOLS_ESTIMATOR: '/tools/estimator',
+  TOOLS_STRUCTURAL: '/tools/structural-logs',
   LOGIN: '/login',
   REGISTER: '/register',
   DASHBOARD: '/dashboard',
