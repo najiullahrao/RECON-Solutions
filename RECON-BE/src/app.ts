@@ -13,6 +13,7 @@ import appointmentsRoutes from './routes/appointments.routes.js';
 import aiRoutes from './routes/ai.routes.js';
 import uploadRoutes from './routes/upload.routes.js';
 import analyticsRoutes from './routes/analytics.routes.js';
+import estimatorRoutes from './routes/estimator.routes.js';
 import * as response from './utils/response.js';
 
 const app = express();
@@ -49,6 +50,7 @@ app.use('/projects', projectsRoutes);
 app.use('/consultations', consultationsRoutes);
 app.use('/appointments', appointmentsRoutes);
 app.use('/ai', aiRoutes);
+app.use('/estimator', estimatorRoutes);
 app.use('/upload', uploadRoutes);
 app.use('/analytics', analyticsRoutes);
 

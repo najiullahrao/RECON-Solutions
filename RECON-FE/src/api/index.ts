@@ -5,6 +5,7 @@ export { projectsApi } from './projects';
 export { consultationsApi } from './consultations';
 export { appointmentsApi } from './appointments';
 export { aiApi } from './ai';
+export { estimatorApi } from './estimator';
 export { analyticsApi } from './analytics';
 export { uploadApi } from './upload';
 export { healthApi } from './health';
