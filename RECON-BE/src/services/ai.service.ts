@@ -1,6 +1,7 @@
 import OpenAI from 'openai';
 import { config } from '../config/index.js';
 import type { AskBody, ChatBody } from '../validations/ai.validations.js';
+import type { EstimatorBody } from '../validations/estimator.validations.js';
 
 const groq = new OpenAI({
   apiKey: config.groqApiKey,
@@ -49,6 +50,28 @@ Good planning upfront saves the most time. What size or type of kitchen are you 
 Example (greeting or off-topic):
 "Hi! I’m the RECON Solutions assistant. I can help with construction questions, renovation advice, or how to request a consultation or book an appointment. What do you need help with?"`;
 
+const ESTIMATOR_SYSTEM_PROMPT = `You are a construction cost estimator for RECON Solutions in Pakistan.
+Given project details, provide a structured cost estimate in PKR.
+
+Rules:
+- Always respond in this EXACT JSON format, no extra text:
+{
+  "summary": "brief one-line summary",
+  "breakdown": [
+    { "category": "Category Name", "minCost": 000000, "maxCost": 000000, "notes": "brief note" }
+  ],
+  "totalMin": 000000,
+  "totalMax": 000000,
+  "currency": "PKR",
+  "disclaimer": "This is an AI-generated rough estimate. Actual costs may vary based on market rates, contractor, and site conditions. Book a consultation for an accurate quote.",
+  "consultationNote": "For a detailed quote, visit /consultations"
+}
+- Use realistic Pakistan market rates (2024–2025)
+- For marla: 1 marla = 272 sqft
+- Quality tiers: basic (economy materials), standard (mid-range), premium (high-end)
+- Include categories: Structure & Foundation, Finishing, Electrical, Plumbing, Flooring, Paint & Fixtures
+- Omit irrelevant categories for the project type`;
+
 export async function ask(body: AskBody) {
   const { question } = body;
   
@@ -94,4 +117,37 @@ export async function chat(body: ChatBody) {
     response: responseContent || 'I apologize, but I couldn\'t generate a response. Could you try asking in a different way?',
     timestamp: new Date()
   };
+}
+
+export async function getEstimate(body: EstimatorBody) {
+  const prompt = `Project details:
+- Type: ${body.projectType}
+- Area: ${body.area} ${body.areaUnit}
+- Location: ${body.location}
+- Quality: ${body.quality}
+- Floors: ${body.floors}
+${body.additionalNotes ? `- Notes: ${body.additionalNotes}` : ''}
+
+Provide a cost estimate in PKR as JSON.`;
+
+  const completion = await groq.chat.completions.create({
+    model: 'llama-3.3-70b-versatile',
+    messages: [
+      { role: 'system', content: ESTIMATOR_SYSTEM_PROMPT },
+      { role: 'user', content: prompt }
+    ],
+    temperature: 0.3,   // lower = more consistent/predictable estimates
+    max_tokens: 800,
+    top_p: 0.9,
+    response_format: { type: 'json_object' }
+  });
+
+  const raw = completion.choices[0].message.content ?? '{}';
+
+  try {
+    const estimate = JSON.parse(raw);
+    return { estimate, input: body, timestamp: new Date() };
+  } catch {
+    throw new Error('Failed to parse estimate response');
+  }
 }

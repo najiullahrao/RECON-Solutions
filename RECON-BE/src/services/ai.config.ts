@@ -6,7 +6,7 @@
 export const AI_CONFIG = {
   company: {
     name: 'RECON Solutions',
-    phone: process.env.AI_COMPANY_PHONE ?? '+92 300 1234567',
+    phone: process.env.AI_COMPANY_PHONE ?? '+92 303 7192621',
     email: process.env.AI_COMPANY_EMAIL ?? 'info@reconsolutions.com',
     bookingUrl: process.env.AI_BOOKING_URL ?? 'https://reconsolutions.com/appointments',
     website: process.env.AI_COMPANY_WEBSITE ?? 'https://reconsolutions.com',

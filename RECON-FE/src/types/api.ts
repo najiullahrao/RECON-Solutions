@@ -146,6 +146,44 @@ export interface ChatPayload {
   messages: ChatMessage[];
 }
 
+// Estimator
+export type ProjectType = 'renovation' | 'new_construction' | 'extension' | 'interior' | 'exterior';
+export type AreaUnit = 'sqft' | 'marla';
+export type QualityTier = 'basic' | 'standard' | 'premium';
+
+export interface EstimatorPayload {
+  projectType: ProjectType;
+  area: number;
+  areaUnit: AreaUnit;
+  location: string;
+  quality: QualityTier;
+  floors: number;
+  additionalNotes?: string;
+}
+
+export interface EstimateBreakdownItem {
+  category: string;
+  minCost: number;
+  maxCost: number;
+  notes: string;
+}
+
+export interface EstimateResult {
+  summary: string;
+  breakdown: EstimateBreakdownItem[];
+  totalMin: number;
+  totalMax: number;
+  currency: string;
+  disclaimer: string;
+  consultationNote: string;
+}
+
+export interface EstimatorResponse {
+  estimate: EstimateResult;
+  input: EstimatorPayload;
+  timestamp: string;
+}
+
 // Analytics
 export interface AnalyticsStats {
   overview: { totalProjects: number; totalConsultations: number; totalAppointments: number };

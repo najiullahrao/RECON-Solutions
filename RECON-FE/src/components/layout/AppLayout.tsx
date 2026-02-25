@@ -2,8 +2,6 @@ import { type ReactNode } from 'react';
 import { useLocation, Outlet } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { GlobalHeader } from './GlobalHeader';
-import { AppFooter } from './AppFooter';
-import { useAuth } from '../../contexts/AuthContext';
 
 interface AppLayoutProps {
   children?: ReactNode;
@@ -11,7 +9,6 @@ interface AppLayoutProps {
 
 export function AppLayout({ children }: AppLayoutProps) {
   const location = useLocation();
-  const { isAuthenticated } = useAuth();
 
   return (
     <div className="flex min-h-screen flex-col bg-[#fafafa]">
@@ -31,7 +28,6 @@ export function AppLayout({ children }: AppLayoutProps) {
             </motion.div>
           </AnimatePresence>
         </main>
-        {!isAuthenticated && <AppFooter />}
       </div>
     </div>
   );
