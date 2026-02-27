@@ -83,7 +83,7 @@ export function GlobalHeader() {
     <header
       role="banner"
       className={cn(
-        'sticky top-0 z-50 flex h-16 items-center justify-between border-b border-gray-200 px-4',
+        'sticky top-0 z-50 flex h-20 items-center justify-between border-b border-gray-200 px-4',
         'bg-white/70 backdrop-blur-md supports-[backdrop-filter]:bg-white/60'
       )}
     >
@@ -96,7 +96,7 @@ export function GlobalHeader() {
         <img
           src="/RECON.png"
           alt="RECON Solutions"
-          className="h-20 w-auto object-contain sm:h-21 lg:h-50"
+          className="h-14 w-auto object-contain lg:h-16"
         />
       </Link>
 

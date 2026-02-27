@@ -1,0 +1,26 @@
+services:
+  backend:
+    build:
+      context: ./RECON-BE
+      dockerfile: Dockerfile
+    container_name: recon-backend
+    ports:
+      - "5000:5000"
+    env_file:
+      - ./RECON-BE/.env
+    environment:
+      - PORT=5000
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./RECON-FE
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: "http://localhost:5000"
+    container_name: recon-frontend
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+    restart: unless-stopped

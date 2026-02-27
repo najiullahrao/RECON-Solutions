@@ -37,7 +37,7 @@ export function Topbar({ onMenuClick, sidebarOpen }: TopbarProps) {
           </svg>
         </button>
         <Link to={ROUTES.HOME} className="flex items-center" aria-label="RECON Solutions home">
-          <img src="/RECON.png" alt="RECON Solutions" className="h-10 w-auto object-contain lg:h-50" />
+          <img src="/RECON.png" alt="RECON Solutions" className="h-8 w-auto object-contain lg:h-10" />
         </Link>
       </div>
       <div className="flex items-center gap-2">
