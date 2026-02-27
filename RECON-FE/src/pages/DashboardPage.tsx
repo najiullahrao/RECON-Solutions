@@ -3,106 +3,79 @@ import { analyticsApi } from '../api';
 import { isApiError } from '../types/api';
 import type { AnalyticsStats, PopularService } from '../types/api';
 import { Card, CardContent, CardHeader } from '../components/ui/Card';
-import { 
-  TrendingUp, 
-  Calendar, 
-  FolderKanban, 
-  Users, 
+import {
+  TrendingUp,
+  Calendar,
+  FolderKanban,
+  Users,
   ArrowUpRight,
-  ArrowDownRight,
   BarChart3,
   Activity,
   Clock,
   CheckCircle2,
   XCircle,
-  MessageCircle
+  MessageCircle,
 } from 'lucide-react';
 
-// Modern Bar Chart Component for Trends
-function TrendChart({ 
-  data 
-}: { 
+// ─── Trend Bar Chart ────────────────────────────────────────────────────────
+function TrendChart({
+  data,
+}: {
   data: { month: string; consultations: number; appointments: number }[];
 }) {
   if (!data || data.length === 0) return null;
 
   const maxValue = Math.max(
-    ...data.map(d => Math.max(d.consultations, d.appointments)),
-    10 // Minimum scale
+    ...data.map((d) => Math.max(d.consultations, d.appointments)),
+    1,
   );
 
-  return (
-    <div className="space-y-6">
-      {/* Chart Area */}
-      <div className="space-y-4 px-2">
-        {data.map((item, index) => {
-          const consultationsWidth = (item.consultations / maxValue) * 100;
-          const appointmentsWidth = (item.appointments / maxValue) * 100;
-          const total = item.consultations + item.appointments;
+  const totalConsultations = data.reduce((s, d) => s + d.consultations, 0);
+  const totalAppointments = data.reduce((s, d) => s + d.appointments, 0);
 
+  return (
+    <div className="space-y-5">
+      <div className="space-y-5">
+        {data.map((item, index) => {
+          const cw = (item.consultations / maxValue) * 100;
+          const aw = (item.appointments / maxValue) * 100;
           return (
-            <div key={index} className="group">
-              {/* Month Label & Total */}
+            <div key={index}>
               <div className="mb-2 flex items-center justify-between">
-                <span className="text-sm font-medium text-stone-700 dark:text-stone-300">
+                <span className="text-xs font-semibold uppercase tracking-wider text-stone-500">
                   {item.month}
                 </span>
-                <span className="text-xs font-semibold text-stone-500 dark:text-stone-400">
-                  {total} total
+                <span className="text-xs text-stone-400">
+                  {item.consultations + item.appointments} total
                 </span>
               </div>
-
-              {/* Bars Container */}
-              <div className="space-y-2">
-                {/* Consultations Bar */}
-                <div className="relative">
-                  <div className="flex items-center gap-3">
-                    <div className="w-28 text-xs text-stone-600 dark:text-stone-400">
-                      Consultations
-                    </div>
-                    <div className="relative flex-1">
-                      <div className="h-8 overflow-hidden rounded-lg bg-stone-100 dark:bg-stone-800">
-                        <div
-                          className="h-full rounded-lg bg-gradient-to-r from-emerald-500 to-emerald-600 transition-all duration-700 ease-out group-hover:from-emerald-400 group-hover:to-emerald-500"
-                          style={{ 
-                            width: `${consultationsWidth}%`,
-                            transitionDelay: `${index * 50}ms`
-                          }}
-                        />
-                      </div>
-                      {/* Value Label */}
-                      {item.consultations > 0 && (
-                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-white mix-blend-difference">
-                          {item.consultations}
-                        </span>
-                      )}
-                    </div>
+              <div className="space-y-1.5">
+                <div className="flex items-center gap-2">
+                  <span className="w-24 shrink-0 text-xs text-stone-500">Consultations</span>
+                  <div className="relative flex-1 h-6 overflow-hidden rounded-sm bg-stone-100">
+                    <div
+                      className="h-full bg-[#800000] transition-all duration-700 ease-out"
+                      style={{ width: `${cw}%`, transitionDelay: `${index * 60}ms` }}
+                    />
+                    {item.consultations > 0 && (
+                      <span className="absolute right-2 top-1/2 -translate-y-1/2 text-xs font-semibold text-white">
+                        {item.consultations}
+                      </span>
+                    )}
                   </div>
                 </div>
-
-                {/* Appointments Bar */}
-                <div className="relative">
-                  <div className="flex items-center gap-3">
-                    <div className="w-28 text-xs text-stone-600 dark:text-stone-400">
-                      Appointments
-                    </div>
-                    <div className="relative flex-1">
-                      <div className="h-8 overflow-hidden rounded-lg bg-stone-100 dark:bg-stone-800">
-                        <div
-                          className="h-full rounded-lg bg-gradient-to-r from-blue-500 to-blue-600 transition-all duration-700 ease-out group-hover:from-blue-400 group-hover:to-blue-500"
-                          style={{ 
-                            width: `${appointmentsWidth}%`,
-                            transitionDelay: `${index * 50 + 100}ms`
-                          }}
-                        />
-                      </div>
-                      {/* Value Label */}
-                      {item.appointments > 0 && (
-                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-white mix-blend-difference">
-                          {item.appointments}
-                        </span>
-                      )}
-                    </div>
+                <div className="flex items-center gap-2">
+                  <span className="w-24 shrink-0 text-xs text-stone-500">Appointments</span>
+                  <div className="relative flex-1 h-6 overflow-hidden rounded-sm bg-stone-100">
+                    <div
+                      className="h-full bg-[#1a1a1a] transition-all duration-700 ease-out"
+                      style={{ width: `${aw}%`, transitionDelay: `${index * 60 + 80}ms` }}
+                    />
+                    {item.appointments > 0 && (
+                      <span className="absolute right-2 top-1/2 -translate-y-1/2 text-xs font-semibold text-white">
+                        {item.appointments}
+                      </span>
+                    )}
                   </div>
                 </div>
               </div>
@@ -112,35 +85,31 @@ function TrendChart({
       </div>
 
       {/* Legend */}
-      <div className="flex items-center justify-center gap-6 border-t border-stone-200 pt-4 dark:border-stone-700">
+      <div className="flex items-center gap-6 border-t border-stone-200 pt-4">
         <div className="flex items-center gap-2">
-          <div className="h-3 w-3 rounded bg-gradient-to-br from-emerald-500 to-emerald-600" />
-          <span className="text-sm text-stone-600 dark:text-stone-400">Consultations</span>
+          <div className="h-2.5 w-2.5 bg-[#800000]" />
+          <span className="text-xs text-stone-600">Consultations</span>
         </div>
         <div className="flex items-center gap-2">
-          <div className="h-3 w-3 rounded bg-gradient-to-br from-blue-500 to-blue-600" />
-          <span className="text-sm text-stone-600 dark:text-stone-400">Appointments</span>
+          <div className="h-2.5 w-2.5 bg-[#1a1a1a]" />
+          <span className="text-xs text-stone-600">Appointments</span>
         </div>
       </div>
 
-      {/* Summary Stats */}
-      <div className="grid grid-cols-3 gap-4 rounded-lg bg-stone-50 p-4 dark:bg-stone-800/50">
-        <div className="text-center">
-          <p className="text-xs text-stone-500 dark:text-stone-400">Total Consultations</p>
-          <p className="mt-1 text-lg font-bold text-emerald-600 dark:text-emerald-400">
-            {data.reduce((sum, item) => sum + item.consultations, 0)}
-          </p>
+      {/* Summary row */}
+      <div className="grid grid-cols-3 divide-x divide-stone-200 border border-stone-200 rounded-sm">
+        <div className="py-3 text-center">
+          <p className="text-xs text-stone-500">Consultations</p>
+          <p className="mt-0.5 text-lg font-bold text-[#800000]">{totalConsultations}</p>
         </div>
-        <div className="text-center">
-          <p className="text-xs text-stone-500 dark:text-stone-400">Total Appointments</p>
-          <p className="mt-1 text-lg font-bold text-blue-600 dark:text-blue-400">
-            {data.reduce((sum, item) => sum + item.appointments, 0)}
-          </p>
+        <div className="py-3 text-center">
+          <p className="text-xs text-stone-500">Appointments</p>
+          <p className="mt-0.5 text-lg font-bold text-[#1a1a1a]">{totalAppointments}</p>
         </div>
-        <div className="text-center">
-          <p className="text-xs text-stone-500 dark:text-stone-400">Combined Total</p>
-          <p className="mt-1 text-lg font-bold text-purple-600 dark:text-purple-400">
-            {data.reduce((sum, item) => sum + item.consultations + item.appointments, 0)}
+        <div className="py-3 text-center">
+          <p className="text-xs text-stone-500">Combined</p>
+          <p className="mt-0.5 text-lg font-bold text-stone-700">
+            {totalConsultations + totalAppointments}
           </p>
         </div>
       </div>
@@ -148,78 +117,81 @@ function TrendChart({
   );
 }
 
-// Donut Chart Component
-function DonutChart({ 
-  data
-}: { 
+// ─── Donut Chart ─────────────────────────────────────────────────────────────
+function DonutChart({
+  data,
+}: {
   data: { label: string; value: number; color: string }[];
 }) {
   if (!data || data.length === 0) return null;
 
-  const total = data.reduce((sum, item) => sum + item.value, 0);
-  const size = 160;
-  const strokeWidth = 30;
-  const radius = (size - strokeWidth) / 2;
-  const circumference = 2 * Math.PI * radius;
+  const total = data.reduce((s, d) => s + d.value, 0);
+  if (total === 0) return null;
 
-  let currentAngle = -90;
+  const size = 144;
+  const strokeW = 28;
+  const r = (size - strokeW) / 2;
+  const C = 2 * Math.PI * r;
+
+  let cumulative = 0;
 
   return (
-    <div className="flex items-center justify-center gap-6">
-      <div className="relative" style={{ width: size, height: size }}>
-        <svg width={size} height={size} className="transform -rotate-90">
+    <div className="flex flex-col items-center gap-6 sm:flex-row">
+      {/* SVG donut */}
+      <div className="relative shrink-0" style={{ width: size, height: size }}>
+        <svg width={size} height={size} style={{ transform: 'rotate(-90deg)' }}>
+          {/* track */}
           <circle
             cx={size / 2}
             cy={size / 2}
-            r={radius}
+            r={r}
             fill="none"
-            stroke="currentColor"
-            strokeWidth={strokeWidth}
-            className="text-stone-100 dark:text-stone-800"
+            stroke="#e7e5e4"
+            strokeWidth={strokeW}
           />
-          {data.map((item, index) => {
-            const percentage = (item.value / total) * 100;
-            const angle = (percentage / 100) * 360;
-            const offset = ((100 - percentage) / 100) * circumference;
-            
-            const segment = (
+          {data.map((item, i) => {
+            const arc = (item.value / total) * C;
+            const offset = C - cumulative;
+            cumulative += arc;
+            return (
               <circle
-                key={index}
+                key={i}
                 cx={size / 2}
                 cy={size / 2}
-                r={radius}
+                r={r}
                 fill="none"
                 stroke={item.color}
-                strokeWidth={strokeWidth}
-                strokeDasharray={circumference}
+                strokeWidth={strokeW}
+                strokeDasharray={`${arc} ${C - arc}`}
                 strokeDashoffset={offset}
-                transform={`rotate(${currentAngle} ${size / 2} ${size / 2})`}
-                className="transition-all duration-300"
+                className="transition-all duration-500"
               />
             );
-            
-            currentAngle += angle;
-            return segment;
           })}
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <p className="text-3xl font-bold text-stone-900 dark:text-stone-100">{total}</p>
-          <p className="text-xs text-stone-500 dark:text-stone-400">Total</p>
+          <p className="text-2xl font-bold text-[#1a1a1a]">{total}</p>
+          <p className="text-xs text-stone-400 uppercase tracking-wider">Total</p>
         </div>
       </div>
-      <div className="space-y-2">
-        {data.map((item, index) => {
-          const percentage = ((item.value / total) * 100).toFixed(1);
+
+      {/* Legend */}
+      <div className="flex-1 space-y-2 w-full">
+        {data.map((item, i) => {
+          const pct = ((item.value / total) * 100).toFixed(1);
           return (
-            <div key={index} className="flex items-center gap-2 text-sm">
-              <div 
-                className="h-3 w-3 rounded-full" 
-                style={{ backgroundColor: item.color }}
-              />
-              <span className="text-stone-700 dark:text-stone-300">{item.label}</span>
-              <span className="ml-auto font-medium text-stone-900 dark:text-stone-100">
-                {item.value} ({percentage}%)
-              </span>
+            <div key={i} className="flex items-center justify-between gap-3 text-sm">
+              <div className="flex items-center gap-2 min-w-0">
+                <div
+                  className="h-2.5 w-2.5 shrink-0"
+                  style={{ backgroundColor: item.color }}
+                />
+                <span className="truncate text-stone-600">{item.label}</span>
+              </div>
+              <div className="flex items-center gap-2 shrink-0">
+                <span className="text-xs text-stone-400">{pct}%</span>
+                <span className="font-semibold text-[#1a1a1a] w-6 text-right">{item.value}</span>
+              </div>
             </div>
           );
         })}
@@ -228,13 +200,80 @@ function DonutChart({
   );
 }
 
+
+// ─── Types ────────────────────────────────────────────────────────────────────
 interface TrendsData {
-  [month: string]: {
-    consultations: number;
-    appointments: number;
-  };
+  [month: string]: { consultations: number; appointments: number };
 }
 
+// ─── Status palette ───────────────────────────────────────────────────────────
+const STATUS_COLORS: Record<string, string> = {
+  pending:     '#3b82f6',
+  scheduled:   '#2563eb',
+  approved:    '#16a34a',
+  confirmed:   '#15803d',
+  completed:   '#16a34a',
+  cancelled:   '#ef4444',
+  new:         '#800000',
+  contacted:   '#b45309',
+  in_progress: '#6366f1',
+  resolved:    '#16a34a',
+  closed:      '#6b7280',
+};
+
+const FALLBACK_COLORS = [
+  '#800000', '#1a1a1a', '#3b82f6', '#16a34a', '#6366f1', '#b45309', '#ef4444',
+];
+
+function getStatusColor(status: string, index: number): string {
+  const key = status.toLowerCase().replace(/[\s-]/g, '_');
+  return STATUS_COLORS[key] ?? FALLBACK_COLORS[index % FALLBACK_COLORS.length];
+}
+
+// ─── Stat card sub-component ──────────────────────────────────────────────────
+interface StatCardProps {
+  title: string;
+  value: number;
+  icon: React.ElementType;
+  subtitle: string;
+  trend?: string;
+  accentColor: string;
+}
+
+function StatCard({ title, value, icon: Icon, subtitle, trend, accentColor }: StatCardProps) {
+  return (
+    <Card className="overflow-hidden">
+      <CardContent className="p-6">
+        <div className="flex items-start justify-between">
+          <div className="flex-1 min-w-0">
+            <p className="text-xs font-semibold uppercase tracking-wider text-stone-400">{title}</p>
+            <p className="mt-2 text-4xl font-bold text-[#1a1a1a] tracking-tight">
+              {value.toLocaleString()}
+            </p>
+            {trend && (
+              <div className="mt-2 flex items-center gap-1">
+                <ArrowUpRight className="h-3.5 w-3.5" style={{ color: accentColor }} />
+                <span className="text-xs font-semibold" style={{ color: accentColor }}>
+                  {trend}
+                </span>
+                <span className="text-xs text-stone-400">of total</span>
+              </div>
+            )}
+            <p className="mt-1.5 text-xs text-stone-400">{subtitle}</p>
+          </div>
+          <div
+            className="ml-4 shrink-0 rounded-sm p-2.5"
+            style={{ backgroundColor: `${accentColor}15` }}
+          >
+            <Icon className="h-5 w-5" style={{ color: accentColor }} />
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+// ─── Main Page ────────────────────────────────────────────────────────────────
 export function DashboardPage() {
   const [stats, setStats] = useState<AnalyticsStats | null>(null);
   const [popular, setPopular] = useState<PopularService[]>([]);
@@ -244,47 +283,26 @@ export function DashboardPage() {
 
   useEffect(() => {
     let cancelled = false;
-    let statsLoaded = false;
-    let popularLoaded = false;
-    let trendsLoaded = false;
-    
-    const checkAllLoaded = () => {
-      if (statsLoaded && popularLoaded && trendsLoaded && !cancelled) {
-        setLoading(false);
-      }
-    };
-    
-    // Load all data in parallel for fastest overall load time
+
     Promise.all([
       analyticsApi.getStats(),
       analyticsApi.getPopularServices(),
-      analyticsApi.getTrends()
+      analyticsApi.getTrends(),
     ])
       .then(([statsRes, popularRes, trendsRes]) => {
         if (cancelled) return;
-        
-        // Handle stats
         if (isApiError(statsRes)) {
           setError(statsRes.error.message);
         } else {
           setStats(statsRes.data);
         }
-        statsLoaded = true;
-        checkAllLoaded();
-        
-        // Handle popular services
         if (!isApiError(popularRes)) {
           setPopular(Array.isArray(popularRes.data) ? popularRes.data : []);
         }
-        popularLoaded = true;
-        checkAllLoaded();
-        
-        // Handle trends
         if (!isApiError(trendsRes)) {
           setTrends(trendsRes.data);
         }
-        trendsLoaded = true;
-        checkAllLoaded();
+        setLoading(false);
       })
       .catch((err) => {
         if (!cancelled) {
@@ -292,231 +310,164 @@ export function DashboardPage() {
           setLoading(false);
         }
       });
-    
-    return () => {
-      cancelled = true;
-    };
+
+    return () => { cancelled = true; };
   }, []);
 
+  // ── Loading ──
   if (loading) {
     return (
       <div className="flex h-[60vh] items-center justify-center">
         <div className="text-center">
-          <div className="mx-auto h-12 w-12 animate-spin rounded-full border-4 border-blue-200 border-t-blue-600 dark:border-stone-700 dark:border-t-blue-500" />
-          <p className="mt-4 text-sm text-stone-600 dark:text-stone-400">Loading dashboard...</p>
+          <div className="mx-auto h-10 w-10 animate-spin rounded-full border-2 border-stone-200 border-t-[#800000]" />
+          <p className="mt-4 text-sm text-stone-500">Loading dashboard…</p>
         </div>
       </div>
     );
   }
 
+  // ── Error ──
   if (error) {
     return (
-      <div className="flex h-[60vh] items-center justify-center">
-        <Card className="max-w-md">
-          <CardContent className="pt-6">
-            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/20">
-              <Activity className="h-6 w-6 text-red-600 dark:text-red-400" />
-            </div>
-            <h3 className="text-lg font-semibold text-stone-900 dark:text-stone-100">
-              Access Restricted
-            </h3>
-            <p className="mt-2 text-red-600 dark:text-red-400">{error}</p>
-            <p className="mt-2 text-sm text-stone-500 dark:text-stone-400">
-              Dashboard is available for staff and admin users only.
-            </p>
-          </CardContent>
-        </Card>
+      <div className="flex h-[60vh] items-center justify-center px-4">
+        <div className="w-full max-w-sm border border-red-200 bg-white p-8 rounded-sm text-center">
+          <XCircle className="mx-auto h-10 w-10 text-red-500" />
+          <h3 className="mt-4 text-base font-semibold text-[#1a1a1a]">Access Restricted</h3>
+          <p className="mt-2 text-sm text-red-600">{error}</p>
+          <p className="mt-1 text-xs text-stone-400">
+            Dashboard is available for staff and admin users only.
+          </p>
+        </div>
       </div>
     );
   }
 
-  const overview = stats?.overview ?? { totalProjects: 0, totalConsultations: 0, totalAppointments: 0 };
+  // ── Derived data ──
+  const overview = stats?.overview ?? {
+    totalProjects: 0,
+    totalConsultations: 0,
+    totalAppointments: 0,
+  };
   const byStage = stats?.projects?.byStage ?? {};
   const consultationsByStatus = stats?.consultations?.byStatus ?? {};
   const appointmentsByStatus = stats?.appointments?.byStatus ?? {};
-  const totalStageProjects = Object.values(byStage).reduce((sum: number, count) => sum + (count as number), 0);
-  
-  // Calculate growth trends
+  const totalStageProjects = Object.values(byStage).reduce(
+    (s: number, c) => s + (c as number),
+    0,
+  );
+
   const recentConsultations = stats?.consultations?.last30Days ?? 0;
   const recentAppointments = stats?.appointments?.last30Days ?? 0;
-  const consultationsGrowth = overview.totalConsultations > 0 
-    ? ((recentConsultations / overview.totalConsultations) * 100).toFixed(1)
-    : '0';
-  const appointmentsGrowth = overview.totalAppointments > 0 
-    ? ((recentAppointments / overview.totalAppointments) * 100).toFixed(1)
-    : '0';
+  const consultationsGrowth =
+    overview.totalConsultations > 0
+      ? ((recentConsultations / overview.totalConsultations) * 100).toFixed(1)
+      : '0';
+  const appointmentsGrowth =
+    overview.totalAppointments > 0
+      ? ((recentAppointments / overview.totalAppointments) * 100).toFixed(1)
+      : '0';
 
-  // Format trends data for chart
-  const trendChartData = trends 
+  const trendChartData = trends
     ? Object.entries(trends)
         .sort((a, b) => a[0].localeCompare(b[0]))
         .slice(-6)
-        .map(([month, data]) => ({
+        .map(([month, d]) => ({
           month: new Date(month + '-01').toLocaleDateString('en-US', { month: 'short' }),
-          consultations: data.consultations,
-          appointments: data.appointments
+          consultations: d.consultations,
+          appointments: d.appointments,
         }))
     : [];
 
-  // Status icons and colors - comprehensive mapping for all statuses
-  const statusConfig: Record<string, { icon: any; color: string; bg: string }> = {
-    // Appointments statuses
-    pending: { icon: Clock, color: '#3b82f6', bg: 'bg-blue-500' },
-    scheduled: { icon: Calendar, color: '#2563eb', bg: 'bg-blue-600' },
-    approved: { icon: CheckCircle2, color: '#10b981', bg: 'bg-emerald-500' },
-    confirmed: { icon: CheckCircle2, color: '#059669', bg: 'bg-emerald-600' },
-    completed: { icon: CheckCircle2, color: '#10b981', bg: 'bg-emerald-500' },
-    cancelled: { icon: XCircle, color: '#ef4444', bg: 'bg-red-500' },
-    // Consultations statuses
-    new: { icon: MessageCircle, color: '#3b82f6', bg: 'bg-blue-500' },
-    contacted: { icon: Users, color: '#2563eb', bg: 'bg-blue-600' },
-    in_progress: { icon: Activity, color: '#6366f1', bg: 'bg-indigo-500' },
-    resolved: { icon: CheckCircle2, color: '#10b981', bg: 'bg-emerald-500' },
-    closed: { icon: XCircle, color: '#6b7280', bg: 'bg-stone-500' }
+  const consultationsDonutData = Object.entries(consultationsByStatus).map(
+    ([status, count], i) => ({
+      label: status.charAt(0).toUpperCase() + status.slice(1).replace(/_/g, ' '),
+      value: count as number,
+      color: getStatusColor(status, i),
+    }),
+  );
+
+  const appointmentsDonutData = Object.entries(appointmentsByStatus).map(
+    ([status, count], i) => ({
+      label: status.charAt(0).toUpperCase() + status.slice(1).replace(/_/g, ' '),
+      value: count as number,
+      color: getStatusColor(status, i),
+    }),
+  );
+
+  const maxPopularCount = Math.max(...popular.map((p) => p.count), 1);
+  const hasData =
+    Object.keys(byStage).length > 0 ||
+    popular.length > 0 ||
+    trendChartData.length > 0;
+
+  const statusIcons: Record<string, React.ElementType> = {
+    pending:     Clock,
+    scheduled:   Calendar,
+    approved:    CheckCircle2,
+    confirmed:   CheckCircle2,
+    completed:   CheckCircle2,
+    cancelled:   XCircle,
+    new:         MessageCircle,
+    contacted:   Users,
+    in_progress: Activity,
+    resolved:    CheckCircle2,
+    closed:      XCircle,
   };
-
-  // Helper function to get color for status (case-insensitive)
-  const getStatusColor = (status: string, index: number, type: 'consultation' | 'appointment'): string => {
-    const normalizedStatus = status.toLowerCase().replace(/[_\s]/g, '_');
-    const configColor = statusConfig[normalizedStatus]?.color;
-    
-    if (configColor) return configColor;
-    
-    // If not found in config, assign distinct colors based on type
-    if (type === 'consultation') {
-      const consultationColors = ['#3b82f6', '#2563eb', '#6366f1', '#8b5cf6', '#10b981'];
-      return consultationColors[index % consultationColors.length];
-    } else {
-      const appointmentColors = ['#3b82f6', '#2563eb', '#10b981', '#059669', '#ef4444'];
-      return appointmentColors[index % appointmentColors.length];
-    }
-  };
-
-  const consultationsDonutData = Object.entries(consultationsByStatus).map(([status, count], index) => ({
-    label: status.charAt(0).toUpperCase() + status.slice(1).replace(/_/g, ' '),
-    value: count as number,
-    color: getStatusColor(status, index, 'consultation')
-  }));
-
-  const appointmentsDonutData = Object.entries(appointmentsByStatus).map(([status, count], index) => ({
-    label: status.charAt(0).toUpperCase() + status.slice(1).replace(/_/g, ' '),
-    value: count as number,
-    color: getStatusColor(status, index, 'appointment')
-  }));
-
-  const maxPopularCount = Math.max(...popular.map(p => p.count), 1);
-
-  const statCards = [
-    {
-      title: 'Total Projects',
-      value: overview.totalProjects,
-      icon: FolderKanban,
-      subtitle: `${totalStageProjects} in pipeline`,
-      color: 'bg-blue-500',
-      lightBg: 'bg-blue-50 dark:bg-blue-950/20',
-      textColor: 'text-blue-600 dark:text-blue-400'
-    },
-    {
-      title: 'Consultations',
-      value: overview.totalConsultations,
-      icon: Users,
-      trend: `${consultationsGrowth}%`,
-      subtitle: `${recentConsultations} in last 30 days`,
-      trendUp: true,
-      color: 'bg-emerald-500',
-      lightBg: 'bg-emerald-50 dark:bg-emerald-950/20',
-      textColor: 'text-emerald-600 dark:text-emerald-400'
-    },
-    {
-      title: 'Appointments',
-      value: overview.totalAppointments,
-      icon: Calendar,
-      trend: `${appointmentsGrowth}%`,
-      subtitle: `${recentAppointments} in last 30 days`,
-      trendUp: true,
-      color: 'bg-blue-500',
-      lightBg: 'bg-blue-50 dark:bg-blue-950/20',
-      textColor: 'text-blue-600 dark:text-blue-400'
-    }
-  ];
 
   return (
-    <div className="space-y-6 pb-8">
-      {/* Header */}
-      <div className="flex items-center justify-between">
+    <div className="space-y-6 pb-10">
+      {/* ── Page Header ── */}
+      <div className="flex items-start justify-between gap-4 border-b border-stone-200 pb-5">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-stone-900 dark:text-stone-100">
+          <h1 className="text-2xl font-bold tracking-tight text-[#1a1a1a]">
             Analytics Dashboard
           </h1>
-          <p className="mt-1 text-stone-600 dark:text-stone-400">
+          <p className="mt-1 text-sm text-stone-500">
             Real-time overview of your business metrics and performance
           </p>
         </div>
-        <div className="flex items-center gap-2 rounded-lg border border-stone-200 bg-white px-4 py-2 text-sm dark:border-stone-700 dark:bg-stone-800">
-          <Activity className="h-4 w-4 animate-pulse text-emerald-500" />
-          <span className="text-stone-600 dark:text-stone-400">Live</span>
+        <div className="flex shrink-0 items-center gap-2 border border-stone-200 bg-white px-3 py-1.5 text-xs rounded-sm">
+          <div className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500" />
+          <span className="text-stone-500 font-medium uppercase tracking-wider">Live</span>
         </div>
       </div>
 
-      {/* KPI Cards */}
-      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {statCards.map((stat) => {
-          const Icon = stat.icon;
-          const TrendIcon = stat.trendUp ? ArrowUpRight : ArrowDownRight;
-          
-          return (
-            <Card key={stat.title} className="overflow-hidden transition-shadow hover:shadow-lg">
-              <CardContent className="p-6">
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <p className="text-sm font-medium text-stone-600 dark:text-stone-400">
-                      {stat.title}
-                    </p>
-                    <p className="mt-2 text-3xl font-bold tracking-tight text-stone-900 dark:text-stone-100">
-                      {stat.value.toLocaleString()}
-                    </p>
-                    {stat.trend && (
-                      <div className="mt-3 flex items-center gap-1">
-                        <TrendIcon 
-                          className="h-4 w-4 text-emerald-600 dark:text-emerald-400" 
-                        />
-                        <span className="text-sm font-medium text-emerald-600 dark:text-emerald-400">
-                          {stat.trend}
-                        </span>
-                        <span className="text-sm text-stone-500 dark:text-stone-500">of total</span>
-                      </div>
-                    )}
-                    {stat.subtitle && (
-                      <p className="mt-2 text-xs text-stone-500 dark:text-stone-400">
-                        {stat.subtitle}
-                      </p>
-                    )}
-                  </div>
-                  <div className={`rounded-xl p-3 ${stat.lightBg}`}>
-                    <Icon className={`h-6 w-6 ${stat.textColor}`} />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          );
-        })}
+      {/* ── KPI Cards ── */}
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <StatCard
+          title="Total Projects"
+          value={overview.totalProjects}
+          icon={FolderKanban}
+          subtitle={`${totalStageProjects} project${totalStageProjects !== 1 ? 's' : ''} in pipeline`}
+          accentColor="#800000"
+        />
+        <StatCard
+          title="Consultations"
+          value={overview.totalConsultations}
+          icon={Users}
+          subtitle={`${recentConsultations} in the last 30 days`}
+          trend={`${consultationsGrowth}%`}
+          accentColor="#800000"
+        />
+        <StatCard
+          title="Appointments"
+          value={overview.totalAppointments}
+          icon={Calendar}
+          subtitle={`${recentAppointments} in the last 30 days`}
+          trend={`${appointmentsGrowth}%`}
+          accentColor="#1a1a1a"
+        />
       </div>
 
-      {/* Trends Chart */}
+      {/* ── Activity Trends ── */}
       {trendChartData.length > 0 && (
-        <Card className="transition-shadow hover:shadow-lg">
-          <CardHeader className="border-b border-stone-200 dark:border-stone-700">
-            <div className="flex items-center gap-2">
-              <div className="rounded-lg bg-purple-50 p-2 dark:bg-purple-950/20">
-                <TrendingUp className="h-5 w-5 text-purple-600 dark:text-purple-400" />
-              </div>
+        <Card>
+          <CardHeader>
+            <div className="flex items-center gap-3">
+              <TrendingUp className="h-4 w-4 text-[#800000]" />
               <div>
-                <h2 className="text-lg font-semibold text-stone-900 dark:text-stone-100">
-                  Activity Trends
-                </h2>
-                <p className="text-sm text-stone-500 dark:text-stone-400">
-                  Last 6 months comparison
-                </p>
+                <h2 className="text-sm font-semibold text-[#1a1a1a]">Activity Trends</h2>
+                <p className="text-xs text-stone-400">Last 6 months — consultations vs appointments</p>
               </div>
             </div>
           </CardHeader>
@@ -526,184 +477,222 @@ export function DashboardPage() {
         </Card>
       )}
 
-      <div className="grid gap-6 lg:grid-cols-2">
-        {/* Consultations by Status */}
-        {Object.keys(consultationsByStatus).length > 0 && (
-          <Card className="transition-shadow hover:shadow-lg">
-            <CardHeader className="border-b border-stone-200 dark:border-stone-700">
-              <div className="flex items-center gap-2">
-                <div className="rounded-lg bg-emerald-50 p-2 dark:bg-emerald-950/20">
-                  <Users className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
-                </div>
-                <div>
-                  <h2 className="text-lg font-semibold text-stone-900 dark:text-stone-100">
-                    Consultations by Status
-                  </h2>
-                  <p className="text-sm text-stone-500 dark:text-stone-400">
-                    Current distribution
-                  </p>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent className="p-6">
-              <DonutChart data={consultationsDonutData} />
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Appointments by Status */}
-        {Object.keys(appointmentsByStatus).length > 0 && (
-          <Card className="transition-shadow hover:shadow-lg">
-            <CardHeader className="border-b border-stone-200 dark:border-stone-700">
-              <div className="flex items-center gap-2">
-                <div className="rounded-lg bg-blue-50 p-2 dark:bg-blue-950/20">
-                  <Calendar className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-                </div>
-                <div>
-                  <h2 className="text-lg font-semibold text-stone-900 dark:text-stone-100">
-                    Appointments by Status
-                  </h2>
-                  <p className="text-sm text-stone-500 dark:text-stone-400">
-                    Current distribution
-                  </p>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent className="p-6">
-              <DonutChart data={appointmentsDonutData} />
-            </CardContent>
-          </Card>
-        )}
-      </div>
-
-      <div className="grid gap-6 lg:grid-cols-2">
-        {/* Projects by Stage */}
-        {Object.keys(byStage).length > 0 && (
-          <Card className="transition-shadow hover:shadow-lg">
-            <CardHeader className="border-b border-stone-200 dark:border-stone-700">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="rounded-lg bg-blue-50 p-2 dark:bg-blue-950/20">
-                    <BarChart3 className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-                  </div>
+      {/* ── Status Breakdowns ── */}
+      {(Object.keys(consultationsByStatus).length > 0 ||
+        Object.keys(appointmentsByStatus).length > 0) && (
+        <div className="grid gap-4 lg:grid-cols-2">
+          {Object.keys(consultationsByStatus).length > 0 && (
+            <Card>
+              <CardHeader>
+                <div className="flex items-center gap-3">
+                  <Users className="h-4 w-4 text-[#800000]" />
                   <div>
-                    <h2 className="text-lg font-semibold text-stone-900 dark:text-stone-100">
-                      Projects by Stage
-                    </h2>
-                    <p className="text-sm text-stone-500 dark:text-stone-400">
-                      Pipeline distribution
-                    </p>
+                    <h2 className="text-sm font-semibold text-[#1a1a1a]">Consultations by Status</h2>
+                    <p className="text-xs text-stone-400">Current distribution</p>
                   </div>
                 </div>
-                <span className="text-sm font-medium text-stone-500 dark:text-stone-400">
-                  {totalStageProjects} total
-                </span>
-              </div>
-            </CardHeader>
-            <CardContent className="p-6">
-              <div className="space-y-4">
-                {Object.entries(byStage).map(([stage, count]) => {
-                  const percentage = totalStageProjects > 0 ? ((count as number) / totalStageProjects) * 100 : 0;
-                  
-                  return (
-                    <div key={stage} className="space-y-2">
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="font-medium capitalize text-stone-700 dark:text-stone-300">
-                          {stage.replace(/_/g, ' ')}
-                        </span>
-                        <div className="flex items-center gap-3">
-                          <span className="text-stone-500 dark:text-stone-400">
-                            {percentage.toFixed(1)}%
+              </CardHeader>
+              <CardContent className="p-6">
+                <DonutChart data={consultationsDonutData} />
+              </CardContent>
+            </Card>
+          )}
+
+          {Object.keys(appointmentsByStatus).length > 0 && (
+            <Card>
+              <CardHeader>
+                <div className="flex items-center gap-3">
+                  <Calendar className="h-4 w-4 text-[#1a1a1a]" />
+                  <div>
+                    <h2 className="text-sm font-semibold text-[#1a1a1a]">Appointments by Status</h2>
+                    <p className="text-xs text-stone-400">Current distribution</p>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className="p-6">
+                <DonutChart data={appointmentsDonutData} />
+              </CardContent>
+            </Card>
+          )}
+        </div>
+      )}
+
+      {/* ── Pipeline & Services ── */}
+      {(Object.keys(byStage).length > 0 || popular.length > 0) && (
+        <div className="grid gap-4 lg:grid-cols-2">
+          {/* Projects by Stage */}
+          {Object.keys(byStage).length > 0 && (
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <BarChart3 className="h-4 w-4 text-[#800000]" />
+                    <div>
+                      <h2 className="text-sm font-semibold text-[#1a1a1a]">Projects by Stage</h2>
+                      <p className="text-xs text-stone-400">Pipeline distribution</p>
+                    </div>
+                  </div>
+                  <span className="text-xs text-stone-400 font-medium">
+                    {totalStageProjects} total
+                  </span>
+                </div>
+              </CardHeader>
+              <CardContent className="p-6">
+                <div className="space-y-4">
+                  {Object.entries(byStage).map(([stage, count]) => {
+                    const pct =
+                      totalStageProjects > 0
+                        ? ((count as number) / totalStageProjects) * 100
+                        : 0;
+                    return (
+                      <div key={stage}>
+                        <div className="mb-1.5 flex items-center justify-between text-xs">
+                          <span className="font-medium capitalize text-stone-600">
+                            {stage.replace(/_/g, ' ')}
                           </span>
-                          <span className="font-bold text-stone-900 dark:text-stone-100">
-                            {count as number}
-                          </span>
+                          <div className="flex items-center gap-3">
+                            <span className="text-stone-400">{pct.toFixed(1)}%</span>
+                            <span className="font-bold text-[#1a1a1a] w-5 text-right">
+                              {count as number}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="h-1.5 overflow-hidden rounded-sm bg-stone-100">
+                          <div
+                            className="h-full bg-[#800000] transition-all duration-500"
+                            style={{ width: `${pct}%` }}
+                          />
                         </div>
                       </div>
-                      <div className="h-2 overflow-hidden rounded-full bg-stone-100 dark:bg-stone-800">
-                        <div
-                          className="h-full rounded-full bg-gradient-to-r from-blue-500 to-blue-600 transition-all duration-500"
-                          style={{ width: `${percentage}%` }}
-                        />
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Popular Services */}
-        {popular.length > 0 && (
-          <Card className="transition-shadow hover:shadow-lg">
-            <CardHeader className="border-b border-stone-200 dark:border-stone-700">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="rounded-lg bg-indigo-50 p-2 dark:bg-indigo-950/20">
-                    <TrendingUp className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
-                  </div>
-                  <div>
-                    <h2 className="text-lg font-semibold text-stone-900 dark:text-stone-100">
-                      Popular Services
-                    </h2>
-                    <p className="text-sm text-stone-500 dark:text-stone-400">
-                      Most requested services
-                    </p>
-                  </div>
+                    );
+                  })}
                 </div>
-                <span className="text-sm font-medium text-stone-500 dark:text-stone-400">
-                  Top {popular.length}
-                </span>
-              </div>
-            </CardHeader>
-            <CardContent className="p-6">
-              <div className="space-y-4">
-                {popular.map(({ service, count }, index) => {
-                  const percentage = (count / maxPopularCount) * 100;
-                  
-                  return (
-                    <div key={service} className="space-y-2">
-                      <div className="flex items-center justify-between text-sm">
-                        <div className="flex items-center gap-3">
-                          <span className="flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 text-xs font-bold text-white shadow-sm">
-                            {index + 1}
-                          </span>
-                          <span className="font-medium text-stone-700 dark:text-stone-300">
-                            {service}
-                          </span>
-                        </div>
-                        <span className="font-bold text-stone-900 dark:text-stone-100">
-                          {count}
-                        </span>
-                      </div>
-                      <div className="h-2 overflow-hidden rounded-full bg-stone-100 dark:bg-stone-800">
-                        <div
-                          className="h-full rounded-full bg-gradient-to-r from-indigo-500 to-purple-600 transition-all duration-500"
-                          style={{ width: `${percentage}%` }}
-                        />
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </CardContent>
-          </Card>
-        )}
-      </div>
+              </CardContent>
+            </Card>
+          )}
 
-      {/* Empty State */}
-      {Object.keys(byStage).length === 0 && popular.length === 0 && trendChartData.length === 0 && (
+          {/* Popular Services */}
+          {popular.length > 0 && (
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <TrendingUp className="h-4 w-4 text-[#800000]" />
+                    <div>
+                      <h2 className="text-sm font-semibold text-[#1a1a1a]">Popular Services</h2>
+                      <p className="text-xs text-stone-400">Most requested services</p>
+                    </div>
+                  </div>
+                  <span className="text-xs text-stone-400 font-medium">Top {popular.length > 5 ? 5 : popular.length}</span>
+                </div>
+              </CardHeader>
+              <CardContent className="p-6">
+                <div className="space-y-4">
+                  {popular.slice(0,5).map(({ service, count }, index) => {
+                    const pct = (count / maxPopularCount) * 100;
+                    return (
+                      <div key={service}>
+                        <div className="mb-1.5 flex items-center justify-between text-xs">
+                          <div className="flex items-center gap-2.5 min-w-0">
+                            <span className="flex h-5 w-5 shrink-0 items-center justify-center bg-[#800000] text-[10px] font-bold text-white">
+                              {index + 1}
+                            </span>
+                            <span className="font-medium text-stone-700 truncate">{service}</span>
+                          </div>
+                          <span className="ml-3 shrink-0 font-bold text-[#1a1a1a]">{count}</span>
+                        </div>
+                        <div className="h-1.5 overflow-hidden rounded-sm bg-stone-100">
+                          <div
+                            className="h-full bg-[#1a1a1a] transition-all duration-500"
+                            style={{ width: `${pct}%` }}
+                          />
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+        </div>
+      )}
+
+      {/* ── Status Detail Tables ── */}
+      {(Object.keys(consultationsByStatus).length > 0 ||
+        Object.keys(appointmentsByStatus).length > 0) && (
+        <div className="grid gap-4 lg:grid-cols-2">
+          {Object.keys(consultationsByStatus).length > 0 && (
+            <Card>
+              <CardHeader>
+                <h2 className="text-sm font-semibold text-[#1a1a1a]">Consultation Status Breakdown</h2>
+              </CardHeader>
+              <CardContent className="p-0">
+                <table className="w-full text-sm">
+                  <tbody className="divide-y divide-stone-100">
+                    {Object.entries(consultationsByStatus).map(([status, count], i) => {
+                      const Icon = statusIcons[status.toLowerCase()] ?? Activity;
+                      const color = getStatusColor(status, i);
+                      return (
+                        <tr key={status} className="flex items-center justify-between px-6 py-3 hover:bg-stone-50 transition-colors">
+                          <td className="flex items-center gap-2.5">
+                            <Icon className="h-3.5 w-3.5 shrink-0" style={{ color }} />
+                            <span className="capitalize text-stone-600 text-xs">
+                              {status.replace(/_/g, ' ')}
+                            </span>
+                          </td>
+                          <td className="font-semibold text-[#1a1a1a] text-xs tabular-nums">
+                            {(count as number).toLocaleString()}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </CardContent>
+            </Card>
+          )}
+
+          {Object.keys(appointmentsByStatus).length > 0 && (
+            <Card>
+              <CardHeader>
+                <h2 className="text-sm font-semibold text-[#1a1a1a]">Appointment Status Breakdown</h2>
+              </CardHeader>
+              <CardContent className="p-0">
+                <table className="w-full text-sm">
+                  <tbody className="divide-y divide-stone-100">
+                    {Object.entries(appointmentsByStatus).map(([status, count], i) => {
+                      const Icon = statusIcons[status.toLowerCase()] ?? Activity;
+                      const color = getStatusColor(status, i);
+                      return (
+                        <tr key={status} className="flex items-center justify-between px-6 py-3 hover:bg-stone-50 transition-colors">
+                          <td className="flex items-center gap-2.5">
+                            <Icon className="h-3.5 w-3.5 shrink-0" style={{ color }} />
+                            <span className="capitalize text-stone-600 text-xs">
+                              {status.replace(/_/g, ' ')}
+                            </span>
+                          </td>
+                          <td className="font-semibold text-[#1a1a1a] text-xs tabular-nums">
+                            {(count as number).toLocaleString()}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </CardContent>
+            </Card>
+          )}
+        </div>
+      )}
+
+      {/* ── Empty State ── */}
+      {!hasData && (
         <Card className="border-dashed">
-          <CardContent className="flex flex-col items-center justify-center py-12">
-            <div className="rounded-full bg-stone-100 p-4 dark:bg-stone-800">
-              <BarChart3 className="h-8 w-8 text-stone-400" />
-            </div>
-            <h3 className="mt-4 text-lg font-semibold text-stone-900 dark:text-stone-100">
-              No analytics data yet
-            </h3>
-            <p className="mt-2 text-center text-sm text-stone-500 dark:text-stone-400">
-              Start creating projects and scheduling consultations to see detailed insights.
+          <CardContent className="flex flex-col items-center justify-center py-16">
+            <BarChart3 className="h-10 w-10 text-stone-300" />
+            <h3 className="mt-4 text-base font-semibold text-[#1a1a1a]">No analytics data yet</h3>
+            <p className="mt-2 text-center text-sm text-stone-400 max-w-xs">
+              Start creating projects and scheduling consultations to see detailed insights here.
             </p>
           </CardContent>
         </Card>

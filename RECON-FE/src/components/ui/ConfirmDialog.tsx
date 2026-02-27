@@ -21,12 +21,12 @@ export function ConfirmDialog({
   message,
   confirmLabel = 'Confirm',
   cancelLabel = 'Cancel',
-  variant = 'default',
+  // variant = 'default',
   loading = false,
 }: ConfirmDialogProps) {
   if (!open) return null;
 
-  const isDanger = variant === 'danger';
+  // const isDanger = variant === 'danger';
 
   return (
     <div
